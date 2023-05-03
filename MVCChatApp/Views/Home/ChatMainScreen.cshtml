@@ -19,16 +19,10 @@
 @foreach (var item in model)
 {
     <div>
-        <p>Message By: @item.SenderName</p>
-        <h5>Server: @item.Server</h5>
-        <h3>Channel: @item.Channel</h3>
-        <p>Message: @item.Message1</p>
-        <p>Time: @item.SenderTime</p> 
+        <h8 style="background-color:aqua" id="serverBox">Server: @item.Server</h8>
+        <h8 style="background-color:aquamarine" id="channelBox">Channel: @item.Channel</h8>
+        <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
+        <p style="background-color:lightgray" id="timeBox">Time: @item.SenderTime</p>
+        <p style="background-color:lightblue"  id="messageBox">Message: @item.Message1</p>
     </div>
-
-
-
-
-
-
 }
