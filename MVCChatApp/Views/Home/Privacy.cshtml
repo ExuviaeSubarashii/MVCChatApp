@@ -1,0 +1,15 @@
+﻿@model MVC.Domain.SupClass.AppMain;
+@{
+    ViewData["Title"] = "Successful Login";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<p>You have been successfully logged in as @MVC.Domain.SupClass.AppMain.User.Username.</p>
+<p id="redirectionLabel"> You will be soon redirected.</p>
+<form method="post">
+    <button type="submit" class="btn btn-danger" asp-controller="Home" asp-action="ChatMainScreen">Redirect</button>
+</form>
+
+
+

@@ -1,0 +1,34 @@
+﻿@using MVC.Domain.Models;
+@using MVC.Service.Service;
+@using Newtonsoft.Json;
+@using System.Text;
+@model MVC.Domain.Models.ChatContext;
+<p>Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
+@{
+    Message message = new Message()
+            {
+                Server = "Main",
+                Channel = "Main",
+                ImageDir = "NoImages"
+            };
+    var json = JsonConvert.SerializeObject(message);
+    var content = new StringContent(json, Encoding.UTF8, "application/json");
+    var result = await HttpHelper.httpClient.PostAsync($"/api/Messages/GetAll", content).Result.Content.ReadAsStringAsync();
+    List<Message> model = JsonConvert.DeserializeObject<List<Message>>(result);
+}
+@foreach (var item in model)
+{
+    <div>
+        <p>Message By: @item.SenderName</p>
+        <h5>Server: @item.Server</h5>
+        <h3>Channel: @item.Channel</h3>
+        <p>Message: @item.Message1</p>
+        <p>Time: @item.SenderTime</p> 
+    </div>
+
+
+
+
+
+
+}

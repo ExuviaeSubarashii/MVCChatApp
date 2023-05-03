@@ -1,0 +1,19 @@
+﻿@model MVC.Domain.Models.User;
+@{
+    ViewData["Title"] = "Login Page";
+}
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+
+        @*get the email*@
+        <input type="text" class="form-control" asp-for="Username" width="20"/>
+        <label class="form-label">Password</label>
+        @*get the password*@
+        <input type="text" class="form-control" asp-for="Password" />
+        <button type="submit" class="btn btn-danger" asp-controller="Home" asp-action="Login">Login</button>
+        <button type="submit" class="btn btn-danger" asp-controller="Home" asp-action="RegisterAccount">Register</button>
+    </div>
+</form>
+
+
