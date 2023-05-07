@@ -2,27 +2,18 @@
 @using MVC.Service.Service;
 @using Newtonsoft.Json;
 @using System.Text;
-@model MVC.Domain.Models.ChatContext;
+@model List<Message>
 <p>Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
-@{
-    Message message = new Message()
-            {
-                Server = "Main",
-                Channel = "Main",
-                ImageDir = "NoImages"
-            };
-    var json = JsonConvert.SerializeObject(message);
-    var content = new StringContent(json, Encoding.UTF8, "application/json");
-    var result = await HttpHelper.httpClient.PostAsync($"/api/Messages/GetAll", content).Result.Content.ReadAsStringAsync();
-    List<Message> model = JsonConvert.DeserializeObject<List<Message>>(result);
-}
-@foreach (var item in model)
-{
-    <div>
-        <h8 style="background-color:aqua" id="serverBox">Server: @item.Server</h8>
-        <h8 style="background-color:aquamarine" id="channelBox">Channel: @item.Channel</h8>
-        <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
-        <p style="background-color:lightgray" id="timeBox">Time: @item.SenderTime</p>
-        <p style="background-color:lightblue"  id="messageBox">Message: @item.Message1</p>
-    </div>
-}
+<p>Currently in the server </p>
+ @foreach (var item in Model)
+ {
+     <div>
+         <h8 style="background-color:aqua" id="serverBox">Server: @item.Server</h8>
+         <h8 style="background-color:aquamarine" id="channelBox">Channel: @item.Channel</h8>
+         <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
+         <p style="background-color:lightgray" id="timeBox">Time: @item.SenderTime</p>
+         <p style="background-color:lightblue" id="messageBox">Message: @item.Message1</p>
+     </div>
+ }
+
+

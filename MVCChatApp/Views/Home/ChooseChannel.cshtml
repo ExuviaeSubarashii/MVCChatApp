@@ -1,0 +1,27 @@
+﻿@using MVC.Domain.Models;
+@using MVC.Domain.SupClass;
+@model List<MVC.Domain.Models.Server>
+
+@{
+    string[] chnl;
+    var channel = new MVC.Domain.Models.Server();
+    AppMain.Servers = new MVC.Domain.Models.Server();
+}
+<form method="post">
+@foreach(var item in Model)
+{
+    chnl = item.Channels.Split(',');
+    for (int i = 0; i < chnl.Count(); i++)
+    {
+        channel.Channels = chnl[i];
+            <button name="channelButton" 
+                type="submit" 
+                class="btn btn-danger"
+                value="@channel.Channels"
+                asp-controller="Home"
+                asp-action="ReturnChatScreen">
+            @channel.Channels
+        </button>
+    }
+}
+</form>

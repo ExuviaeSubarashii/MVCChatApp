@@ -64,17 +64,33 @@ namespace MVCChatApp.Controllers
                 return RedirectToAction("Index");
             }
         }
-        [HttpPost]
-        public IActionResult ChatMainScreen()
+       [HttpPost]
+       public ActionResult ChooseServer()
         {
-            return View("ChatMainScreen");
+            if (AppMain.User.Username!=null)
+            {
+                var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+                return View(query.ToList());
+            }
+            else
+            {
+                return NotFound();
+            }
         }
-        [HttpGet]
-        public ActionResult GetAllMessages(List<Message> messages) 
+
+        [HttpPost]
+        public ViewResult ReturnChatScreen(string channelButton)
         {
-            //var query=_CP.Messages.Where(x => x.Server == messages.Channel && x.Channel == messages.Channel).ToList();
-            var query = _CP.Messages.Where(x => x.Server == "Main" && x.Channel == "Main").ToList();
-            return View(query.ToList());
+            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == channelButton.Trim() && x.ImageDir != "Null").ToList();
+            return View("ChatMainScreen", query.ToList());
+        }
+
+        [HttpPost]
+        public ActionResult GetAllChannels(string serverButton)
+        {
+            var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
+            AppMain.User.Server=serverButton.Trim();
+            return View("ChooseChannel",query);
         }
         public IActionResult Index()
         {
