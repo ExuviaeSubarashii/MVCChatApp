@@ -4,14 +4,13 @@ using MVC.Domain.SupClass;
 using MVC.Service.Extension;
 using MVCChatApp.Models;
 using System.Diagnostics;
-
+using MVC.Domain.SupClass;
 namespace MVCChatApp.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ChatContext _CP;
-
         public HomeController(ILogger<HomeController> logger, ChatContext CP)
         {
             _logger = logger;
@@ -77,11 +76,11 @@ namespace MVCChatApp.Controllers
                 return NotFound();
             }
         }
-
         [HttpPost]
         public ViewResult ReturnChatScreen(string channelButton)
         {
-            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == channelButton.Trim() && x.ImageDir != "Null").ToList();
+            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == channelButton.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+            AppMain.Servers.Channels = channelButton.ToString();
             return View("ChatMainScreen", query.ToList());
         }
 
@@ -91,6 +90,23 @@ namespace MVCChatApp.Controllers
             var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
             AppMain.User.Server=serverButton.Trim();
             return View("ChooseChannel",query);
+        }
+        [HttpPost]
+        public ActionResult SendMessage(string messageInput)
+        {
+            Message newmsg = new Message()
+            {
+                Message1 = messageInput,
+                SenderName = AppMain.User.Username,
+                SenderTime = DateTime.UtcNow,
+                Server = AppMain.User.Server,
+                Channel = AppMain.Servers.Channels,
+                ImageDir = null,
+            };
+            _CP.Messages.Add(newmsg);
+            _CP.SaveChanges();
+            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x=>x.Id).ToList();
+            return View("ChatMainScreen", query.ToList());
         }
         public IActionResult Index()
         {

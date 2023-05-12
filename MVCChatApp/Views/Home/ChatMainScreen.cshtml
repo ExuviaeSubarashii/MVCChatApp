@@ -1,19 +1,40 @@
 ﻿@using MVC.Domain.Models;
+@using MVC.Domain.SupClass;
 @using MVC.Service.Service;
 @using Newtonsoft.Json;
 @using System.Text;
-@model List<Message>
+@model IEnumerable<Message>
+
 <p>Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
-<p>Currently in the server </p>
- @foreach (var item in Model)
- {
-     <div>
-         <h8 style="background-color:aqua" id="serverBox">Server: @item.Server</h8>
-         <h8 style="background-color:aquamarine" id="channelBox">Channel: @item.Channel</h8>
-         <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
-         <p style="background-color:lightgray" id="timeBox">Time: @item.SenderTime</p>
-         <p style="background-color:lightblue" id="messageBox">Message: @item.Message1</p>
-     </div>
- }
+<p>Currently in the server @AppMain.Servers.ServerName</p>
+@{
+    AppMain.Message = new MVC.Domain.Models.Message();
+}
+<style>
+    div.scroll {
+        background-color: #fed9ff;
+        width: 835px;
+        height: 360px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
+        padding: 20px;
+    }
+</style>
+<div class="scroll">
+    @foreach (var item in Model)
+    {
+        <h8 style="background-color:aqua" id="serverBox">Server: @item.Server</h8>
+        <h8 style="background-color:aquamarine" id="channelBox">Channel: @item.Channel</h8>
+        <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
+        <p style="background-color:lightgray" id="timeBox">Time: @item.SenderTime</p>
+        <p style="background-color:lightblue" id="messageBox">Message: @item.Message1</p>
+    }
+</div>
+
+<form method="post">
+    <input name="messageInput" type="text" id="userInput" class="form-control" asp-for="@AppMain.Message.Message1"/>
+    <button type="submit" class="btn btn-danger" value="messageInput" asp-controller="Home" asp-action="SendMessage">Gonder</button>
+</form>
 
 
