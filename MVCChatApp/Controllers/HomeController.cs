@@ -4,7 +4,6 @@ using MVC.Domain.SupClass;
 using MVC.Service.Extension;
 using MVCChatApp.Models;
 using System.Diagnostics;
-using MVC.Domain.SupClass;
 namespace MVCChatApp.Controllers
 {
     public class HomeController : Controller
@@ -21,13 +20,14 @@ namespace MVCChatApp.Controllers
         {
             if (user.Username != null && user.Password != null)
             {
-                var query = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd() & x.Password.TrimEnd() == user.Password.TrimEnd());
+                var checkUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd() & x.Password.TrimEnd() == user.Password.TrimEnd());
 
-                if (query)
+                if (checkUserExists)
                 {
                     AppMain.User = new User();
                     AppMain.User.Username = user.Username;
-                    return View("Privacy");
+                    var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+                    return View("ChooseServer", checkserverQuery.ToList());
                 }
                 else
                 {
@@ -63,13 +63,13 @@ namespace MVCChatApp.Controllers
                 return RedirectToAction("Index");
             }
         }
-       [HttpPost]
-       public ActionResult ChooseServer()
+        [HttpPost]
+        public ActionResult ChooseServer()
         {
             if (AppMain.User.Username!=null)
             {
                 var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-                return View(query.ToList());
+                return View("ChooseServer",query.ToList());
             }
             else
             {
@@ -83,7 +83,6 @@ namespace MVCChatApp.Controllers
             AppMain.Servers.Channels = channelButton.ToString();
             return View("ChatMainScreen", query.ToList());
         }
-
         [HttpPost]
         public ActionResult GetAllChannels(string serverButton)
         {
@@ -94,6 +93,7 @@ namespace MVCChatApp.Controllers
         [HttpPost]
         public ActionResult SendMessage(string messageInput)
         {
+            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
             Message newmsg = new Message()
             {
                 Message1 = messageInput,
@@ -103,21 +103,22 @@ namespace MVCChatApp.Controllers
                 Channel = AppMain.Servers.Channels,
                 ImageDir = null,
             };
+            if (messageInput==null)
+            {
+                return View("ChatMainScreen", query.ToList());
+            }
             _CP.Messages.Add(newmsg);
             _CP.SaveChanges();
-            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x=>x.Id).ToList();
             return View("ChatMainScreen", query.ToList());
         }
         public IActionResult Index()
         {
             return View();
         }
-
         public IActionResult Privacy()
         {
             return View();
         }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

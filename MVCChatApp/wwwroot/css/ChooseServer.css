@@ -1,0 +1,11 @@
+﻿body {
+}
+.serverbuttonDiv {
+    background-color: #fed9ff;
+    width: 350px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    padding: 20px;
+}

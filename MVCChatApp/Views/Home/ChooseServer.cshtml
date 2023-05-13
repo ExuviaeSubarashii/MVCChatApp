@@ -1,28 +1,44 @@
 ﻿@using MVC.Domain.Models;
 @using MVC.Domain.SupClass;
 @model List<MVC.Domain.Models.User>
-
 @{
     string[] sw;
     var user = new MVC.Domain.Models.User();
 }
-
-<form method="post">
-    @foreach (var item in Model)
-    {
-        sw = item.Server.Split(',');
-        for (int i = 0; i < sw.Count(); i++)
-        {
-            user.Server = sw[i];
-            <button name="serverButton"
-                type="submit" 
-                class="btn btn-danger"
-                value="@user.Server"
-                asp-controller="Home" 
-                asp-action="GetAllChannels">
-                @user.Server
-            </button>
-        }
+<style>
+    div.scroll{
+    background-color: #fed9ff;
+    width: 350px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    padding: 20px;
     }
+</style>
+<form method="post">
+    <div class="scroll">
+    @if(Model!=null)
+    {
+        
+            @foreach (var item in Model)
+            {
+                sw = item.Server.Split(',');
+                for (int i = 0; i < sw.Count(); i++)
+                {
+                    user.Server = sw[i];
+                    <button 
+                            name="serverButton"
+                            type="submit"
+                            class="btn btn-danger"
+                            value="@user.Server"
+                asp-controller="Home"
+                asp-action="GetAllChannels">
+                        @user.Server
+                    </button>
+                }
+            }
+    }
+    </div>
 </form>
 

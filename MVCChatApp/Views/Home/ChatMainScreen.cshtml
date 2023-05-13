@@ -13,27 +13,30 @@
 <style>
     div.scroll {
         background-color: #fed9ff;
-        width: 835px;
-        height: 360px;
+        width: 1295px;
+        height: 500px;
         overflow-x: hidden;
         overflow-y: auto;
         text-align: center;
         padding: 20px;
     }
 </style>
+@*set the messages*@
 <div class="scroll">
     @foreach (var item in Model)
     {
+        <div style="border:thin solid black">
         <h8 style="background-color:aqua" id="serverBox">Server: @item.Server</h8>
         <h8 style="background-color:aquamarine" id="channelBox">Channel: @item.Channel</h8>
-        <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
         <p style="background-color:lightgray" id="timeBox">Time: @item.SenderTime</p>
+        <p style="background-color:wheat" id="senderBox">Message By: @item.SenderName</p>
         <p style="background-color:lightblue" id="messageBox">Message: @item.Message1</p>
+        </div>
     }
 </div>
-
+@*send message*@
 <form method="post">
-    <input name="messageInput" type="text" id="userInput" class="form-control" asp-for="@AppMain.Message.Message1"/>
+    <input style="border:thick solid black" name="messageInput" type="text" class="form-control" asp-for="@AppMain.Message.Message1" />
     <button type="submit" class="btn btn-danger" value="messageInput" asp-controller="Home" asp-action="SendMessage">Gonder</button>
 </form>
 
