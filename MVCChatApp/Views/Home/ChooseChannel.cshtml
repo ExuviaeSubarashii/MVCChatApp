@@ -7,6 +7,16 @@
     var channel = new MVC.Domain.Models.Server();
     AppMain.Servers = new MVC.Domain.Models.Server();
 }
+<style>
+    body {
+        background-color: #081b29;
+    }
+
+    .chnlDiv {
+        border:groove;
+    }
+</style>
+<div class="chnlDiv">
 <form method="post">
 @foreach(var item in Model)
 {
@@ -25,3 +35,4 @@
         }
     }
 </form>
+</div>

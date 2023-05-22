@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using MVC.Domain.SupClass;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,25 +7,28 @@
     <title>@ViewData["Title"] - Arcadia</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+@*    <script type="text/javascript" language="javascript">
+        function DisableBackButton() {
+            window.history.forward()
+        }
+        DisableBackButton();
+        window.onload = DisableBackButton;
+        window.onpageshow = function (evt) { if (evt.persisted) DisableBackButton() }
+        window.onunload = function () { void (0) }
+    </script>*@
+    <style>
+        .logoutButton{
+            background-color:lightslategray;
+            color:tan;
+        }
+    </style>
 </head>
+
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Arcadia</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <form method="post">
-                            <button type="submit" class="btn btn-danger" asp-controller="Home" asp-action="ChooseServer">ChooseChannel</button>
-                        </form>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <form method="post">
+            <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
+        </form>
     </header>
     <div class="container">
         <main role="main" class="pb-3">

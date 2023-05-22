@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Mvc;
 using MVC.Domain.Models;
 using MVC.Domain.SupClass;
 using MVC.Service.Extension;
@@ -110,6 +111,44 @@ namespace MVCChatApp.Controllers
             _CP.Messages.Add(newmsg);
             _CP.SaveChanges();
             return View("ChatMainScreen", query.ToList());
+        }
+        [HttpPost]
+        public ActionResult CreateNewServer(string serverInput) 
+        {
+            Server servers1 = new Server()
+            {
+                Usernames = AppMain.User.Username,
+                Channels = "Main",
+                ServerName = serverInput,
+            };
+            var query = _CP.Servers.Any(x => x.ServerName.TrimEnd() == serverInput.TrimEnd());
+            if (query)
+            {
+                return NotFound();
+            }
+            _CP.Servers.Add(servers1);
+            _CP.SaveChanges();
+            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            return View("ChooseServer", query3.ToList());
+        }
+        [HttpPost]
+        public ActionResult JoinServer(string newserverInput)
+        {
+            string[] sww = null;
+            var query = _CP.Users.Any(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd());
+            var query2 = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
+            if (query)
+            {
+                query2.Server = query2.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+            }
+            _CP.SaveChanges();
+            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            return View("ChooseServer", query3.ToList());
+        }
+        public ActionResult LogOut()
+        {
+            AppMain.User.Username ="";
+            return View("Index");
         }
         public IActionResult Index()
         {

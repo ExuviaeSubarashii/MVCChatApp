@@ -16,3 +16,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+.logoutButton {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+}

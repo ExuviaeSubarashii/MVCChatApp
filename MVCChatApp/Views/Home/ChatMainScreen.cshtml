@@ -19,6 +19,13 @@
         overflow-y: auto;
         text-align: center;
         padding: 20px;
+        background-color: #081b29;
+        overflow: auto;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+    body {
+        background-color: #081b29;
     }
 </style>
 @*set the messages*@
@@ -39,5 +46,4 @@
     <input style="border:thick solid black" name="messageInput" type="text" class="form-control" asp-for="@AppMain.Message.Message1" />
     <button type="submit" class="btn btn-danger" value="messageInput" asp-controller="Home" asp-action="SendMessage">Gonder</button>
 </form>
-
 

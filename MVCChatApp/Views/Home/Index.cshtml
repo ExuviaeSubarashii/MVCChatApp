@@ -2,17 +2,47 @@
 @{
     ViewData["Title"] = "Login Page";
 }
+<style>
+    .loginBtn{
+        background-color:red;
+        color:white;
+        display: block;
+    }
+    .registerBtn{
+        background-color: red;
+        color: white;
+        display: block;
+    }
+    body{
+        background-color: #081b29;
+    }
+    .userInput{
+        display: block;
+    }
+    .form-label{
+        color:white;
+        display: block;
+    }
+    .loginDiv{
+        margin: auto;
+        width: 16%;
+        border: 3px solid green;
+        padding: 10px;
+        height:100%;
+        align-items:center;
+    }
+</style>
 <form method="post">
-    <div class="mb-3">
+    <div class="loginDiv">
         <label class="form-label">Username</label>
         @*get the email*@
-        <input type="text" class="form-control" asp-for="Username" width="20"/>
+        <input type="text" class="userInput" asp-for="Username" width="20"/>
         <label class="form-label">Password</label>
         @*get the password*@
-        <input type="text" class="form-control" asp-for="Password" />
+        <input type="text" class="userInput" asp-for="Password" />
         <br />
-        <button type="submit" class="btn btn-danger" asp-controller="Home" asp-action="Login">Login</button>
-        <button type="submit" class="btn btn-danger" asp-controller="Home" asp-action="RegisterAccount">Register</button>
+        <button type="submit" class="loginBtn" asp-controller="Home" asp-action="Login">Login</button>
+        <button type="submit" class="registerBtn" asp-controller="Home" asp-action="RegisterAccount">Register</button>
     </div>
 </form>
 
