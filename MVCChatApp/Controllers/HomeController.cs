@@ -5,6 +5,8 @@ using MVC.Domain.SupClass;
 using MVC.Service.Extension;
 using MVCChatApp.Models;
 using System.Diagnostics;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 namespace MVCChatApp.Controllers
 {
     public class HomeController : Controller
@@ -17,7 +19,7 @@ namespace MVCChatApp.Controllers
             _CP = CP;
         }
         [HttpPost]
-        public ActionResult Login(User user)
+        public async Task<ActionResult> Login(User user)
         {
             if (user.Username != null && user.Password != null)
             {
@@ -28,6 +30,7 @@ namespace MVCChatApp.Controllers
                     AppMain.User = new User();
                     AppMain.User.Username = user.Username;
                     var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+                    await Task.Delay(1000);
                     return View("ChooseServer", checkserverQuery.ToList());
                 }
                 else
@@ -35,10 +38,11 @@ namespace MVCChatApp.Controllers
                     return NotFound();
                 }
             }
+            await Task.Delay(1000);
             return Ok();
         }
         [HttpPost]
-        public ActionResult RegisterAccount(User user) 
+        public async Task<ActionResult> RegisterAccount(User user) 
         {
             var query = _CP.Users.Where(x => x.Username == user.Username).Any();
             User newUser = new User()
@@ -61,6 +65,7 @@ namespace MVCChatApp.Controllers
             {
                 _CP.Users.Add(newUser);
                 _CP.SaveChanges();
+                await Task.Delay(1000);
                 return RedirectToAction("Index");
             }
         }
@@ -87,12 +92,12 @@ namespace MVCChatApp.Controllers
         [HttpPost]
         public ActionResult GetAllChannels(string serverButton)
         {
-            var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
             AppMain.User.Server=serverButton.Trim();
+            var query = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).ToList();
             return View("ChooseChannel",query);
         }
         [HttpPost]
-        public ActionResult SendMessage(string messageInput)
+        public async Task<ActionResult> SendMessage(string messageInput)
         {
             var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
             Message newmsg = new Message()
@@ -110,10 +115,12 @@ namespace MVCChatApp.Controllers
             }
             _CP.Messages.Add(newmsg);
             _CP.SaveChanges();
-            return View("ChatMainScreen", query.ToList());
+            var queryaftersending = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+            await Task.Delay(1000);
+            return View("ChatMainScreen", queryaftersending);
         }
         [HttpPost]
-        public ActionResult CreateNewServer(string serverInput) 
+        public async Task<ActionResult> CreateNewServer(string serverInput) 
         {
             Server servers1 = new Server()
             {
@@ -121,29 +128,54 @@ namespace MVCChatApp.Controllers
                 Channels = "Main",
                 ServerName = serverInput,
             };
-            var query = _CP.Servers.Any(x => x.ServerName.TrimEnd() == serverInput.TrimEnd());
-            if (query)
+            var checkifserverExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == serverInput.TrimEnd());
+            if (checkifserverExists)
             {
                 return NotFound();
             }
             _CP.Servers.Add(servers1);
             _CP.SaveChanges();
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
             return View("ChooseServer", query3.ToList());
         }
         [HttpPost]
-        public ActionResult JoinServer(string newserverInput)
+        public async Task<ActionResult> JoinServer(string newserverInput)
         {
             string[] sww = null;
-            var query = _CP.Users.Any(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd());
-            var query2 = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
-            if (query)
+            var checkifUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd());
+            var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
+            if (checkifUserExists)
             {
-                query2.Server = query2.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+                theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
             }
             _CP.SaveChanges();
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
             return View("ChooseServer", query3.ToList());
+        }
+        [HttpPost]
+        public async Task<ActionResult> CreateNewChannel(string newchannelInput)
+        {
+            var whenqueryisfalse = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).ToList();
+            if (newchannelInput==null)
+            {
+                return View("ChooseChannel", whenqueryisfalse);
+            }
+            var checkifuserisowner = _CP.Servers.Any(x => x.ServerName.Trim() == AppMain.User.Server.Trim()&&x.ServerOwner==AppMain.User.Username);
+            var channelswillbeadded = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).FirstOrDefault();
+            
+            if (checkifuserisowner)
+            {
+                channelswillbeadded.Channels = channelswillbeadded.Channels.TrimEnd() + "," + newchannelInput.TrimEnd();
+            }
+            else
+            {
+                return View("ChooseChannel", whenqueryisfalse);
+            }
+            _CP.SaveChanges();
+            var query5 = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).ToList();
+            return View("ChooseChannel", query5);
         }
         public ActionResult LogOut()
         {

@@ -6,7 +6,7 @@
 @model IEnumerable<Message>
 
 <p>Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
-<p>Currently in the server @AppMain.Servers.ServerName</p>
+<p>Currently in the server @AppMain.User.Server</p>
 @{
     AppMain.Message = new MVC.Domain.Models.Message();
 }
@@ -27,6 +27,16 @@
     body {
         background-color: #081b29;
     }
+    .btnSend{
+        background: #081b29;
+        color:blanchedalmond;
+        border:double;
+        border-radius:5px;
+    }
+    .msginput{
+        width: 1200px;
+        height:50px;
+    }
 </style>
 @*set the messages*@
 <div class="scroll">
@@ -43,7 +53,7 @@
 </div>
 @*send message*@
 <form method="post">
-    <input style="border:thick solid black" name="messageInput" type="text" class="form-control" asp-for="@AppMain.Message.Message1" />
-    <button type="submit" class="btn btn-danger" value="messageInput" asp-controller="Home" asp-action="SendMessage">Gonder</button>
+    <input style="border:thick solid black" name="messageInput" type="text" class="msginput" asp-for="@AppMain.Message.Message1" />
+    <button type="submit" class="btnSend" value="messageInput" asp-controller="Home" asp-action="SendMessage">Gonder</button>
 </form>
 

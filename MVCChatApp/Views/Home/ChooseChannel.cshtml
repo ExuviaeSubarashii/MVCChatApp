@@ -13,9 +13,26 @@
     }
 
     .chnlDiv {
-        border:groove;
+        display: block;
+        margin: auto;
+        width: 16%;
+        border: 3px solid green;
+        padding: 10px;
+        height: 100%;
+        align-items: center;
+        justify-content:space-around;
+    }
+
+    .navbar-collapse collapse d-sm-inline-flex justify-content-between{
+        color:white;
     }
 </style>
+<form method="post">
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <input style="border:thick solid black" name="newchannelInput" type="text" class="chnlinput"/>
+    <button type="submit" class="btnSend" value="newchannelInput" asp-controller="Home" asp-action="CreateNewChannel">Yeni Kanal Ekle</button>
+</div>
+</form>
 <div class="chnlDiv">
 <form method="post">
 @foreach(var item in Model)

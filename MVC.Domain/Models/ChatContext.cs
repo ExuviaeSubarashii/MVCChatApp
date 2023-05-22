@@ -83,6 +83,10 @@ namespace MVC.Domain.Models
                     .HasMaxLength(310)
                     .IsUnicode(false)
                     .IsFixedLength();
+                entity.Property(e => e.ServerOwner)
+                   .HasMaxLength(310)
+                   .IsUnicode(false)
+                   .IsFixedLength();
             });
 
             modelBuilder.Entity<User>(entity =>

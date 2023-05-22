@@ -9,5 +9,6 @@ namespace MVC.Domain.Models
         public string ServerName { get; set; } = null!;
         public string Channels { get; set; } = null!;
         public string Usernames { get; set; } = null!;
+        public string ServerOwner { get; set; } = null!;
     }
 }
