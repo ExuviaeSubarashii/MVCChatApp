@@ -70,6 +70,13 @@ namespace MVCChatApp.Controllers
             }
         }
         [HttpPost]
+        public ActionResult GetAllChannels(string serverButton)
+        {
+            AppMain.User.Server = serverButton.Trim();
+            var query = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).ToList();
+            return View("ChooseChannel", query);
+        }
+
         [HttpPost]
         public ViewResult ReturnChatScreen(string channelButton)
         {
@@ -77,13 +84,7 @@ namespace MVCChatApp.Controllers
             AppMain.Servers.Channels = channelButton.ToString();
             return View("ChatMainScreen", query.ToList());
         }
-        [HttpPost]
-        public ActionResult GetAllChannels(string serverButton)
-        {
-            AppMain.User.Server = serverButton.Trim();
-            var query = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).ToList();
-            return View("ChooseChannel", query);
-        }
+
         [HttpPost]
         public async Task<ActionResult> SendMessage(string messageInput)
         {
@@ -143,9 +144,13 @@ namespace MVCChatApp.Controllers
             var returnthisWhenServerDoesNotExist = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             var checkifUServerExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == newserverInput.TrimEnd());
             var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
+            var checkIfUserIsAlreadyInThisServer = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Server.Contains(newserverInput.Trim()));
             if (checkifUServerExists)
             {
-                theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+                if (!checkIfUserIsAlreadyInThisServer)
+                {
+                    theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+                }
             }
             else
             {
@@ -183,6 +188,13 @@ namespace MVCChatApp.Controllers
             return View("ChooseChannel", query5);
         }
         #endregion
+        [HttpPost]
+        public async Task<ActionResult> GetBackToChoosingServer()
+        {
+            var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
+            return View("ChooseServer", checkserverQuery.ToList());
+        }
         public ActionResult LogOut()
         {
             AppMain.User.Username = "";
