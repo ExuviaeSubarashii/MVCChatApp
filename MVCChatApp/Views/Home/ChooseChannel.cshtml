@@ -11,23 +11,45 @@
     body {
         background-color: #081b29;
     }
-
     .chnlDiv {
         display: block;
-        margin: auto;
-        width: 16%;
-        border: 3px solid green;
-        padding: 10px;
-        height: 100%;
-        align-items: center;
-        justify-content:space-around;
+        width: 50px;
+        margin: 0;
+        position: fixed;
+        left: 0;
+        border-radius: 12px;
     }
 
+    .HomeButton {
+        position: fixed;
+        left: 0;
+        background-color: lightgray;
+        border-radius: 12px;
+        top: 5px;
+    }
+    .HomeButton:hover{
+            background-color: #6e65f3;
+            border-radius: 6px;
+    }
     .navbar-collapse collapse d-sm-inline-flex justify-content-between{
         color:white;
     }
+
+    .channelselectionbutton:hover{
+        background-color: #00abf0;
+    }
 </style>
+<header class="topbuttons">
+    <form method="post">
+        <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
+        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="AddFriend">Home</button>
+        <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
+    </form>
+</header>
 @*creating a new channel*@
+<header>
+    
+</header>
 <form method="post">
 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
     <input style="border:thick solid black" name="newchannelInput" type="text" class="chnlinput"/>
@@ -45,7 +67,7 @@
         channel.Channels = chnl[i];
             <button name="channelButton" 
                 type="submit" 
-                class="btn btn-danger"
+                class="channelselectionbutton"
                 value="@channel.Channels"
                 asp-controller="Home"
             asp-action="ReturnChatScreen">

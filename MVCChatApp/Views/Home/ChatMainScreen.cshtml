@@ -5,12 +5,18 @@
 @using System.Text;
 @model IEnumerable<Message>
 
-<p>Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
-<p>Currently in the server @AppMain.User.Server</p>
+<p class="userNotif">Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
+<p class="serverNotif">Currently in the server @AppMain.User.Server</p>
 @{
     AppMain.Message = new MVC.Domain.Models.Message();
 }
 <style>
+    .userNotif{
+        color:white;
+    }
+    .serverNotif{
+        color:white;
+    }
     div.scroll {
         background-color: #fed9ff;
         width: 1295px;
@@ -37,7 +43,27 @@
         width: 1200px;
         height:50px;
     }
+
+    .HomeButton {
+        position: fixed;
+        left: 0;
+        background-color: lightgray;
+        border-radius: 12px;
+        top: 5px;
+    }
+
+        .HomeButton:hover {
+            background-color: #6e65f3;
+            border-radius: 6px;
+        }
 </style>
+<header class="topbuttons">
+    <form method="post">
+        <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
+        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="AddFriend">Home</button>
+        <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
+    </form>
+</header>
 @*set the messages*@
 <div class="scroll">
     @foreach (var item in Model)

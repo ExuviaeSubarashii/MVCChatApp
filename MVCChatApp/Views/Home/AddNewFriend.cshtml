@@ -1,0 +1,58 @@
+﻿<head>
+   
+</head>
+    <body>
+    @using MVC.Domain.Models;
+    @using MVC.Domain.SupClass;
+    @model List<MVC.Domain.Models.User>
+
+    @{
+        string[] sw;
+        var user = new MVC.Domain.Models.User();
+    }
+    <style>
+        body {
+            background-color: #081b29;
+        }
+
+        .friends {
+            display: block;
+        }
+    </style>
+    <header class="topbuttons">
+        <form method="post">
+            <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
+            <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
+        </form>
+    </header>
+    <form method="post">
+        <div>
+            <input name="friendName" type="text" class="friendName" />
+            <button type="submit" class="btnaddFriend" value="friendName" asp-controller="Home" asp-action="SendFriendRequest">AddFriend</button>
+        </div>
+    </form>
+    <form method="post">
+        <div class="friends">
+            @if (Model != null)
+            {
+                @foreach (var item in Model)
+                {
+                    sw = item.Friends.Split(',');
+                    for (int i = 0; i < sw.Count(); i++)
+                    {
+                        user.Friends = sw[i];
+                        <button name="friendName"
+                                type="submit"
+                                class="btn btn-danger"
+                                value="@user.Friends"
+                                asp-controller="Home"
+                                asp-action="">
+                            @user.Friends
+                        </button>
+                    }
+                }
+            }
+        </div>
+    </form>
+
+    </body>

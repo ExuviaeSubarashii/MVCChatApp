@@ -4,6 +4,7 @@ using MVC.Domain.Models;
 using MVC.Domain.SupClass;
 using MVC.Service.Extension;
 using MVCChatApp.Models;
+using Serilog;
 using System.Diagnostics;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -35,6 +36,12 @@ namespace MVCChatApp.Controllers
                 }
                 else
                 {
+                    var log = new LoggerConfiguration()
+                    .WriteTo.File("UserLogs/UserFailedLogs.txt")
+                    .CreateLogger();
+                    log.Information($"User {AppMain.User.Username}"+
+                    "Failed Login.");
+                    log.Information("------------------------------------------------------------");
                     return NotFound();
                 }
             }
@@ -150,6 +157,11 @@ namespace MVCChatApp.Controllers
                 if (!checkIfUserIsAlreadyInThisServer)
                 {
                     theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+                    var log = new LoggerConfiguration()
+                    .WriteTo.File($"ServerLogs/{newserverInput} Logs.txt")
+                    .CreateLogger();
+                    log.Information($"User {AppMain.User.Username} Joined at {DateTime.Now}.");
+                    log.Information("------------------------------------------------------------");
                 }
             }
             else
@@ -178,9 +190,19 @@ namespace MVCChatApp.Controllers
             if (checkifuserisowner)
             {
                 channelswillbeadded.Channels = channelswillbeadded.Channels.TrimEnd() + "," + newchannelInput.TrimEnd();
+                var log = new LoggerConfiguration()
+                    .WriteTo.File($"ServerLogs/{AppMain.User.Server} Logs.txt")
+                    .CreateLogger();
+                log.Information($"Channel Name {newchannelInput} Created at {DateTime.Now}.");
+                log.Information("------------------------------------------------------------");
             }
             else
             {
+                var log = new LoggerConfiguration()
+                   .WriteTo.File($"ServerLogs/{AppMain.User.Server} Logs.txt")
+                   .CreateLogger();
+                log.Information($"Failed to Create Channel Name {newchannelInput} at {DateTime.Now}.");
+                log.Information("------------------------------------------------------------");
                 return View("ChooseChannel", whenqueryisfalse);
             }
             _CP.SaveChanges();
@@ -199,6 +221,33 @@ namespace MVCChatApp.Controllers
         {
             AppMain.User.Username = "";
             return View("Index");
+        }
+        [HttpPost]
+        public async Task<ActionResult> SendFriendRequest(string friendName)
+        {
+            var checkifUserExists = _CP.Users.Any(x => x.Username.Trim() == friendName.Trim());
+            var checkIfUserIsAlreadyFriend = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Friends.Contains(friendName.Trim()));
+            var willAddtoFriendList = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
+            if (checkifUserExists&& !checkIfUserIsAlreadyFriend&&friendName!=null)
+            {
+               willAddtoFriendList.Friends = willAddtoFriendList.Friends.Trim() + "," + friendName.Trim();
+            }
+            else
+            {
+                await Task.Delay(1000);
+                return View("AddNewFriend");
+            }
+            _CP.SaveChanges();
+            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
+            return View("AddNewFriend",query3);
+        }
+        [HttpPost]
+        public async Task<ActionResult> AddFriend()
+        {
+            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
+            return View("AddNewFriend", query3);
         }
         public IActionResult Index()
         {

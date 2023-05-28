@@ -111,6 +111,10 @@ namespace MVC.Domain.Models
                     .HasMaxLength(25)
                     .IsUnicode(false)
                     .IsFixedLength();
+                entity.Property(e => e.Friends)
+                    .HasMaxLength(25)
+                    .IsUnicode(false)
+                    .IsFixedLength();
             });
 
             OnModelCreatingPartial(modelBuilder);

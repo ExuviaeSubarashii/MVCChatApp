@@ -4,38 +4,21 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Arcadia</title>
+    <title>@ViewData["Title"]Arcadia</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-@*    <script type="text/javascript" language="javascript">
-        function DisableBackButton() {
-            window.history.forward()
-        }
-        DisableBackButton();
-        window.onload = DisableBackButton;
-        window.onpageshow = function (evt) { if (evt.persisted) DisableBackButton() }
-        window.onunload = function () { void (0) }
-    </script>*@
     <style>
         .logoutButton{
             background-color:lightslategray;
             color:tan;
         }
-
         .getbacktoChoosingserver{
             background-color: lightslategray;
             color: tan;
         }
     </style>
 </head>
-
 <body>
-    <header>
-        <form method="post">
-            <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
-            <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
-        </form>
-    </header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -47,3 +30,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
