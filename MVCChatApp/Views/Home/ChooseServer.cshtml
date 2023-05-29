@@ -16,11 +16,13 @@
         left: 0;
         background-color: lightgray;
         border-radius:12px;
+        max-width: 100%;
     }
 
         .HomeButton:hover {
             background-color: #6e65f3;
             border-radius: 6px;
+            max-width: 100%;
         }
     .serverdiv {
         display: block;
@@ -29,10 +31,15 @@
         position:fixed;
         left:0;
         border-radius: 12px;
+        max-width: 100%;
     }
 
     .serverselectionbutton:hover {
         background-color: #00abf0;
+        max-width: 100%;
+    }
+    .joinorcreateserver{
+        max-width: 100%;
     }
 </style>
 <header class="topbuttons">
@@ -43,7 +50,7 @@
 </header>
 @*joining and creating a new server*@
 <form method="post">
-    <div class="">
+    <div class="joinorcreateserver">
         <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
             <input style="border:thick solid black" name="newserverInput" type="text" class="srvrinput" />
             <button type="submit" class="btnJoinServer" value="newserverInput" asp-controller="Home" asp-action="JoinServer">Join a New Server</button>

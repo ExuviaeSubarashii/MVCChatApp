@@ -12,5 +12,6 @@ namespace MVC.Domain.Models
         public byte[]? Image { get; set; }
         public string? Server { get; set; }
         public string? Friends { get; set; }
+        public string? FriendRequests { get; set; }
     }
 }

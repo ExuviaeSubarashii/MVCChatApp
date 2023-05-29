@@ -103,7 +103,7 @@ namespace MVC.Domain.Models
                     .IsFixedLength();
 
                 entity.Property(e => e.Server)
-                    .HasMaxLength(7300)
+                    .HasMaxLength(2000)
                     .IsUnicode(false)
                     .IsFixedLength();
 
@@ -113,6 +113,11 @@ namespace MVC.Domain.Models
                     .IsFixedLength();
                 entity.Property(e => e.Friends)
                     .HasMaxLength(25)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+
+                entity.Property(e => e.FriendRequests)
+                    .HasMaxLength(2000)
                     .IsUnicode(false)
                     .IsFixedLength();
             });

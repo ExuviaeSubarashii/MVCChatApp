@@ -8,6 +8,7 @@
 
     @{
         string[] sw;
+        string[] friendrequestArray;
         var user = new MVC.Domain.Models.User();
     }
     <style>
@@ -17,6 +18,14 @@
 
         .friends {
             display: block;
+        
+        }
+
+        .friendRequests{
+            border: dashed;
+            color: white;
+            border-width:15px;
+            width:150px;
         }
     </style>
     <header class="topbuttons">
@@ -28,6 +37,7 @@
     <form method="post">
         <div>
             <input name="friendName" type="text" class="friendName" />
+            @*<input name="friendId" type="text" class="friendId" value="@AppMain.User.Id"/>*@
             <button type="submit" class="btnaddFriend" value="friendName" asp-controller="Home" asp-action="SendFriendRequest">AddFriend</button>
         </div>
     </form>
@@ -49,6 +59,28 @@
                                 asp-action="">
                             @user.Friends
                         </button>
+                    }
+                }
+            }
+        </div>
+        <div class="friendRequests">
+            @if(Model!=null)
+            {
+                foreach (var item in Model)
+                {
+                    friendrequestArray = item.FriendRequests.Split(',');
+                    for (int i = 0; i < friendrequestArray.Count(); i++)
+                    {
+                        user.FriendRequests = friendrequestArray[i];
+                        @if (user.FriendRequests.Trim() != "".Trim())
+                        {
+                            <div>
+                                <p class="userName">@user.FriendRequests</p>
+                                <button class="acceptButton" type="submit" name="friendName" value="@user.FriendRequests" asp-controller="Home" asp-action="AcceptFriendRequest">Accept</button>
+                                <button class="declineButton" type="submit" name="friendName" value="@user.FriendRequests" asp-controller="Home" asp-action="DeclineFriendRequest">Refuse</button>
+                            </div>
+                        }
+                        
                     }
                 }
             }
