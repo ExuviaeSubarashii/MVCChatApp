@@ -1,7 +1,66 @@
-﻿<body>
+﻿@using MVC.Domain.Models;
+@using MVC.Domain.SupClass;
+@using MVC.Service.Service;
+@using Newtonsoft.Json;
+@using System.Text;
+@model IEnumerable<DirectMessages>
+<body>
+    <style>
+        .receiverTitleName {
+            color: white;
+            max-width: 100%;
+        }
+
+        body {
+            background-color: #081b29;
+            max-width: 100%;
+        }
+
+        .HomeButton {
+            position: fixed;
+            left: 0;
+            background-color: lightgray;
+            border-radius: 12px;
+            top: 5px;
+            max-width: 100%;
+        }
+
+            .HomeButton:hover {
+                background-color: #6e65f3;
+                border-radius: 6px;
+                max-width: 100%;
+            }
+    </style>
+    <header class="topbuttons">
+        <form method="post">
+            <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
+            <button type="submit" class="HomeButton" asp-controller="Home" asp-action="AddFriend">Home</button>
+            <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
+        </form>
+    </header>
+
     <form method="post">
         <div class="chatpanel">
+            <p class="receiverTitleName">@AppMain.DirectMessages.ReceiverName</p>
 
+            <div class="scroll">
+                @if (Model!=null)
+                {
+                    @foreach (var item in Model)
+                    {
+                        <div style="border:thin solid black">
+                            <p style="background-color:lightgray" id="timeBox">Time: @item.MessageDate</p>
+                            <p style="background-color:wheat" id="senderBox">@item.SenderName</p>
+                            <p style="background-color:lightblue" id="messageBox">Message: @item.Message</p>
+                        </div>
+                    }
+                }
+                
+            </div>
         </div>
+    </form>
+    <form method="post">
+        <input style="border:thick solid black" name="messageInput" type="text" class="msginput"/>
+        <button type="submit" class="btnSend" value="messageInput" asp-controller="Home" asp-action="SendDirectMessage">Gonder</button>
     </form>
 </body>

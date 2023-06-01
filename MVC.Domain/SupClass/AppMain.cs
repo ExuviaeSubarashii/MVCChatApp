@@ -12,6 +12,7 @@ namespace MVC.Domain.SupClass
         public static User User { get; set; }
         public static Message Message { get; set; }
         public static Server Servers { get; set; }
+        public static DirectMessages DirectMessages { get; set; }
 
     }
 }

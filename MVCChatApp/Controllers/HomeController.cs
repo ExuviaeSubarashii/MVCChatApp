@@ -26,7 +26,7 @@ namespace MVCChatApp.Controllers
 			{
 				var checkUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd() & x.Password.TrimEnd() == user.Password.TrimEnd());
 
-				if (checkUserExists)
+				if (checkUserExists&&user!=null)
 				{
 					AppMain.User = new User();
 					AppMain.User.Username = user.Username;
@@ -309,11 +309,8 @@ namespace MVCChatApp.Controllers
 		{
 			if (friendName != null)
 			{
-
-
 				string[] acceptedfriendRequest = null;
 				List<string> sw = new List<string>();
-
 				var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).FirstOrDefault();
 				var query2 = _CP.Users.Where(x => x.Username == AppMain.User.Username).ToList();
 				foreach (var item in query2)
@@ -327,6 +324,94 @@ namespace MVCChatApp.Controllers
 				query.FriendRequests = newfriendList;
 				_CP.SaveChanges();
 			}
+            var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
+            return View("AddNewFriend", refreshFriendPage);
+        }
+		[HttpPost]
+		public async Task<ActionResult> BlockUser(string friendName)
+		{
+			if (friendName != null) 
+			{
+				//remove the user from friendlist
+                string[] currentFriendList = null;
+                List<string> sw = new List<string>();
+                var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).FirstOrDefault();
+                var query2 = _CP.Users.Where(x => x.Username == AppMain.User.Username).ToList();
+                foreach (var item in query2)
+                {
+                    currentFriendList = item.Friends.Split(',');
+                }
+                List<String> list = currentFriendList.ToList();
+                list.Remove(friendName);
+                string[] columns = list.ToArray();
+                var newfriendList = string.Join(",", columns);
+                query.Friends = newfriendList;
+                _CP.SaveChanges();
+
+                //now add the blocked user to BlockedUser slot
+                var willAddtoBlockedList = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
+                willAddtoBlockedList.BlockedUsers = willAddtoBlockedList.BlockedUsers.Trim() + "," + friendName.Trim();
+                _CP.SaveChanges();
+            }
+            var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            await Task.Delay(1000);
+            return View("AddNewFriend", refreshFriendPage);
+        }
+		[HttpPost]
+		public async Task<ActionResult> FriendChatPanel(string friendName)
+		{
+			AppMain.DirectMessages = new MVC.Domain.Models.DirectMessages();
+			AppMain.DirectMessages.ReceiverName=friendName.Trim();
+
+            var querybySenderNameAfterSending = _CP.DirectMessages.Where(
+			x=>x.SenderName==AppMain.User.Username&& x.ReceiverName==AppMain.DirectMessages.ReceiverName
+			||
+			x.ReceiverName==AppMain.User.Username&&x.SenderName==AppMain.DirectMessages.ReceiverName).ToList();
+            await Task.Delay(1000);
+            return View("FriendChatPanel", querybySenderNameAfterSending);
+        }
+		[HttpPost]
+		public async Task<ActionResult> SendDirectMessage(string messageInput)
+		{
+            DirectMessages newmsg = new DirectMessages()
+            {
+				Message = messageInput.Trim(),
+				MessageDate = DateTime.Now,
+				ReceiverName=AppMain.DirectMessages.ReceiverName.Trim(),
+				SenderName=AppMain.User.Username.Trim(),
+            };
+            _CP.DirectMessages.Add(newmsg);
+            _CP.SaveChanges();
+            var querybySenderNameAfterSending = _CP.DirectMessages.Where(
+             x => x.SenderName == AppMain.User.Username && x.ReceiverName == AppMain.DirectMessages.ReceiverName
+             ||
+             x.ReceiverName == AppMain.User.Username && x.SenderName == AppMain.DirectMessages.ReceiverName).ToList();
+
+            await Task.Delay(1000);
+            return View("FriendChatPanel", querybySenderNameAfterSending);
+
+        }
+		[HttpPost]
+		public async Task<ActionResult> RemoveFromFriendList(string friendName)
+		{
+			if (friendName != null) 
+			{
+            string[] currentFriendList = null;
+            List<string> sw = new List<string>();
+            var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).FirstOrDefault();
+            var query2 = _CP.Users.Where(x => x.Username == AppMain.User.Username).ToList();
+            foreach (var item in query2)
+            {
+                currentFriendList = item.Friends.Split(',');
+            }
+            List<String> list = currentFriendList.ToList();
+            list.Remove(friendName);
+            string[] columns = list.ToArray();
+            var newfriendList = string.Join(",", columns);
+            query.Friends = newfriendList;
+            _CP.SaveChanges();
+            }
             var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);

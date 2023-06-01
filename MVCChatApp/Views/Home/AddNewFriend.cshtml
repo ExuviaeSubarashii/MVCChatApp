@@ -1,14 +1,17 @@
 ﻿<head>
-   
+    
 </head>
-    <body>
+<body>
     @using MVC.Domain.Models;
     @using MVC.Domain.SupClass;
+    @using MVC.Service.Service;
+    @using Newtonsoft.Json;
     @model List<MVC.Domain.Models.User>
 
     @{
         string[] sw;
         string[] friendrequestArray;
+        int[] friendrequestIdArray;
         var user = new MVC.Domain.Models.User();
     }
     <style>
@@ -18,14 +21,28 @@
 
         .friends {
             display: block;
-        
         }
 
-        .friendRequests{
+        .friendRequests {
             border: dashed;
             color: white;
-            border-width:15px;
-            width:150px;
+            border-width: 15px;
+            width: 150px;
+        }
+
+        .custom-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        .optionButtons{
+            background-color: #081b29;
+            border: 1px solid green; /* Green border */
+            color: white; /* White text */
+            cursor: pointer; /* Pointer/hand icon */
+            float: left; /* Float the buttons side by side */
         }
     </style>
     <header class="topbuttons">
@@ -51,20 +68,26 @@
                     for (int i = 0; i < sw.Count(); i++)
                     {
                         user.Friends = sw[i];
-                        <button name="friendName"
+                        <div class="button-group">
+                            <button class="optionButtons" name="friendName" type="submit" value="@user.Friends" asp-controller="Home" asp-action="RemoveFromFriendList">Remove From Friendlist</button>
+                            <button class="optionButtons" name="friendName" type="submit" value="@user.Friends" asp-controller="Home" asp-action="FriendChatPanel">Message</button>
+                            <button class="optionButtons" name="friendName" type="submit" value="@user.Friends" asp-controller="Home" asp-action="BlockUser">Block</button>
+                        <button click
+                                name="friendName"
                                 type="submit"
-                                class="btn btn-danger"
+                                class="friendButton"
                                 value="@user.Friends"
                                 asp-controller="Home"
                                 asp-action="">
                             @user.Friends
                         </button>
+                        </div>
                     }
                 }
             }
         </div>
         <div class="friendRequests">
-            @if(Model!=null)
+            @if (Model != null)
             {
                 foreach (var item in Model)
                 {
@@ -80,11 +103,36 @@
                                 <button class="declineButton" type="submit" name="friendName" value="@user.FriendRequests" asp-controller="Home" asp-action="DeclineFriendRequest">Refuse</button>
                             </div>
                         }
-                        
+
                     }
                 }
             }
         </div>
     </form>
+    @*<script type="text/javascript">
+        var elements = document.getElementsByClassName('friendButton');
+        
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].oncontextmenu = function (event) {
+                event.preventDefault();
 
-    </body>
+                var menu = document.createElement('div');
+                menu.className = 'custom-menu';
+
+                var ProfileItem=document.createElement('button');
+                ProfileItem.innerHTML='Profile';
+                ProfileItem.addEventListener('click', function () 
+                {
+                    console.log('ProfileItem clicked');
+                    $.post("/Home/BlockUser", { @user.Friends });
+                });
+                menu.appendChild(ProfileItem);
+
+                menu.style.position = 'absolute';
+                menu.style.left = event.clientX + 'px';
+                menu.style.top = event.clientY + 'px';
+                document.body.appendChild(menu);
+            };
+        }
+    </script>*@
+</body>

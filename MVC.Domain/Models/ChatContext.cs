@@ -19,6 +19,7 @@ namespace MVC.Domain.Models
         public virtual DbSet<Message> Messages { get; set; } = null!;
         public virtual DbSet<Server> Servers { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<DirectMessages> DirectMessages { get; set; }= null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -120,8 +121,34 @@ namespace MVC.Domain.Models
                     .HasMaxLength(2000)
                     .IsUnicode(false)
                     .IsFixedLength();
+                entity.Property(e => e.BlockedUsers)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .IsFixedLength();
             });
+            modelBuilder.Entity<DirectMessages>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("Id");
 
+                entity.Property(e => e.SenderName)
+                    .HasMaxLength(310)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+
+                entity.Property(e => e.ReceiverName)
+                    .HasMaxLength(310)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+
+                entity.Property(e => e.Message)
+                    .HasMaxLength(310)
+                    .IsUnicode(false)
+                    .HasColumnName("Message")
+                    .IsFixedLength();
+
+                entity.Property(e => e.MessageDate)
+                    .HasColumnType("datetime");
+            });
             OnModelCreatingPartial(modelBuilder);
         }
 
