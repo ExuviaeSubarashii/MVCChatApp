@@ -1,5 +1,4 @@
 using MVC.Domain.Models;
-
 namespace MVCChatApp
 {
     public class Program
@@ -11,7 +10,7 @@ namespace MVCChatApp
             // Add services to the container.
             builder.Services.AddScoped<ChatContext>();
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddSignalR();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -32,7 +31,6 @@ namespace MVCChatApp
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
             app.Run();
         }
     }

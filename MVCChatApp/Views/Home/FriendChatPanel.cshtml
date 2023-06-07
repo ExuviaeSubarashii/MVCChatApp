@@ -5,6 +5,7 @@
 @using System.Text;
 @model IEnumerable<DirectMessages>
 <body>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         .receiverTitleName {
             color: white;
@@ -30,37 +31,86 @@
                 border-radius: 6px;
                 max-width: 100%;
             }
+
+        .ChatPanel {
+            background-color: #fed9ff;
+            width: 1295px;
+            height: 500px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            text-align: center;
+            padding: 20px;
+            background-color: lightslategray;
+            overflow: auto;
+            display: flex;
+            flex-direction: column-reverse;
+            max-width: 100%;
+            border-radius: 15px 50px 30px;
+        }
+
+        .senderBox{
+            position:relative;
+            left: -600px;
+            color:white;
+            border-radius: 15px 50px 30px;
+        }
+        .timeBox{
+            position: relative;
+            left: -500px;
+            border-radius: 15px 50px 30px;
+        }
+        .messageBox{
+            position: relative;
+            left: -500px;
+            border-radius: 15px 50px 30px;
+        }
+        .msginput{
+            border-radius: 30px;
+            background-color:gray;
+            width: 50%;
+            height:70px;
+            position: absolute;
+            right: 400px;
+        }
+        .btnSend{
+            border-radius: 30px;
+            margin: auto;
+            padding: 10px;
+            position: relative;
+            right: -960px;
+            top:13px;
+            background-color:gray;
+            border:none;
+        }
     </style>
     <header class="topbuttons">
         <form method="post">
-            <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
-            <button type="submit" class="HomeButton" asp-controller="Home" asp-action="AddFriend">Home</button>
+            <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
+            <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home">Home</button>
             <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
         </form>
     </header>
 
     <form method="post">
-        <div class="chatpanel">
             <p class="receiverTitleName">@AppMain.DirectMessages.ReceiverName</p>
 
-            <div class="scroll">
-                @if (Model!=null)
+            <div class="ChatPanel">
+                @if (Model != null)
                 {
                     @foreach (var item in Model)
                     {
-                        <div style="border:thin solid black">
-                            <p style="background-color:lightgray" id="timeBox">Time: @item.MessageDate</p>
-                            <p style="background-color:wheat" id="senderBox">@item.SenderName</p>
-                            <p style="background-color:lightblue" id="messageBox">Message: @item.Message</p>
+                        <div class="weball" style="border:thin solid black">
+                        <p class="timeBox" id="timeBox">At: @item.MessageDate</p>
+                            <p class="senderBox" id="senderBox">@item.SenderName</p>
+                        <p class="messageBox" id="messageBox">@item.Message</p>
                         </div>
                     }
                 }
-                
             </div>
-        </div>
     </form>
     <form method="post">
-        <input style="border:thick solid black" name="messageInput" type="text" class="msginput" maxlength="250"/>
-        <button type="submit" class="btnSend" value="messageInput" asp-controller="Home" asp-action="SendDirectMessage">Gonder</button>
+        <input style="border:thick solid black" name="messageInput" type="text" class="msginput" maxlength="250" />
+        <button type="submit" class="btnSend" value="messageInput" asp-controller="Home" asp-action="SendDirectMessage"><i class='bx bxs-send'></i></button>
+        
     </form>
 </body>

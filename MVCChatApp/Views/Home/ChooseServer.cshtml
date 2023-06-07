@@ -5,6 +5,7 @@
     string[] sw;
     var user = new MVC.Domain.Models.User();
 }
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <style>
     body {
         background-color: #081b29;
@@ -34,18 +35,27 @@
         max-width: 100%;
     }
 
+    .serverselectionbutton{
+        border-radius: 12px;
+        font-family: 'Comic Sans MS';
+    }
     .serverselectionbutton:hover {
-        background-color: #00abf0;
-        max-width: 100%;
+            background-color: #6e65f3;
+            border-radius: 6px;
     }
-    .joinorcreateserver{
-        max-width: 100%;
+    .btnJoinServer{
+          background-color: lightgray;
+          border-radius:12px;
+          font-family:'Comic Sans MS';
     }
+      .btnJoinServer:hover {
+            background-color: #00abf0;
+        }
 </style>
 <header class="topbuttons">
     <form method="post">
-        <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
-        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="AddFriend">Home</button>
+        <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
+        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
     </form>
 </header>
 @*joining and creating a new server*@

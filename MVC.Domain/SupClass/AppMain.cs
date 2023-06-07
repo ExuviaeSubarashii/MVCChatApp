@@ -9,10 +9,10 @@ namespace MVC.Domain.SupClass
 {
     public class AppMain
     {
-        public static User User { get; set; }
-        public static Message Message { get; set; }
-        public static Server Servers { get; set; }
-        public static DirectMessages DirectMessages { get; set; }
+        public static User User { get; set; } = null;
+        public static Message Message { get; set; } = null;
+        public static Server Servers { get; set; } = null;
+        public static DirectMessages DirectMessages { get; set; } = null;
 
     }
 }

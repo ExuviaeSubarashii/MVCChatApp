@@ -1,7 +1,4 @@
-﻿<head>
-    
-</head>
-<body>
+﻿<body>
     @using MVC.Domain.Models;
     @using MVC.Domain.SupClass;
     @using MVC.Service.Service;
@@ -14,6 +11,7 @@
         int[] friendrequestIdArray;
         var user = new MVC.Domain.Models.User();
     }
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         body {
             background-color: #081b29;
@@ -47,7 +45,7 @@
     </style>
     <header class="topbuttons">
         <form method="post">
-            <button class="logoutButton" asp-controller="Home" asp-action="LogOut">LogOut</button>
+            <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
             <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
         </form>
     </header>
