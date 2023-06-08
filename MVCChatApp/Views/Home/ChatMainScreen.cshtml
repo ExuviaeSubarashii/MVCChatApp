@@ -8,89 +8,27 @@
 <head>
 </head>
 <p class="userNotif">Currently logged in as @MVC.Domain.SupClass.AppMain.User.Username</p>
-<p class="serverNotif">Currently in the server @AppMain.User.Server</p>
+<p class="serverNotif">Currently in the server @AppMain.User.Server and channel @AppMain.Servers.Channels</p>
+<p class="channelNotif"></p>
 @{
     AppMain.Message = new MVC.Domain.Models.Message();
 }
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script>
-    $(document).ready(function () {
-        // Define a function to retrieve and process the JSON list
-        function retrieveJsonList() {
-            $.ajax({
-                url: '@Url.Action("ReloadChatScreen", "Home")',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    // Clear the existing <p> components
-                    //$('#ChatDiv').remove();
-                    $('#ChatDiv').empty();
-                    // Iterate over the JSON list and create <p> components
-                    data.forEach(function (item) {
 
-                        var serverPara=document.createElement("h6");
-                        serverPara.classList.add('serverBox');
-
-                        var channelPara=document.createElement("p");
-                        channelPara.classList.add('channelBox')
-
-                        var timePara=document.createElement("p");
-                        timePara.classList.add('timeBox')
-
-                        var senderPara=document.createElement("p");
-                        senderPara.classList.add('senderBox');
-
-                        var messagePara=document.createElement("p");
-                        messagePara.classList.add('messageBox');
-
-                        serverPara.textContent = item.server;
-                        channelPara.textContent = item.channel;
-                        timePara.textContent = item.senderTime;
-                        senderPara.textContent = item.senderName;
-                        messagePara.textContent = item.message1;
-
-                        $('#ChatDiv').append(serverPara);
-                        $('#ChatDiv').append(channelPara);
-                        $('#ChatDiv').append(timePara);
-                        $('#ChatDiv').append(senderPara);
-                        $('#ChatDiv').append(messagePara);
-                        //try to design them maybe?
-                        //document.body.appendChild(serverPara);
-                        //document.body.appendChild(channelPara);
-                        //document.body.appendChild(timePara);
-                        //document.body.appendChild(senderPara);
-                        //document.body.appendChild(messagePara);
-
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error(error);
-                }
-            });
-        }
-
-        // Call the function initially
-        retrieveJsonList();
-
-        // Call the function every 5 seconds
-        setInterval(retrieveJsonList, 5000);
-        $('#refreshButton').click(function () {
-            retrieveJsonList();
-        });
-    });
-</script>
 <style>
-    .userNotif{
-        color:white;
+    .userNotif {
+        color: white;
         max-width: 100%;
     }
-    .serverNotif{
-        color:white;
+
+    .serverNotif {
+        color: white;
         max-width: 100%;
     }
-    div.scroll {
+
+    #ChatDiv {
         background-color: #fed9ff;
         width: 1295px;
         height: 500px;
@@ -105,6 +43,7 @@
         max-width: 100%;
         border-radius: 30px 5px 0px 0px;
     }
+
     body {
         background-color: #081b29;
         max-width: 100%;
@@ -125,16 +64,18 @@
         background: red;
         border-radius: 10px;
     }
-    .btnSend{
+
+    .btnSend {
         background: #081b29;
-        color:blanchedalmond;
-        border:double;
-        border-radius:5px;
+        color: blanchedalmond;
+        border: double;
+        border-radius: 5px;
         max-width: 100%;
     }
-    .msginput{
+
+    .msginput {
         width: 1200px;
-        height:50px;
+        height: 50px;
         max-width: 100%;
         border-radius: 30px;
         background-color: gray;
@@ -174,27 +115,183 @@
 @*set the messages*@
 <form method="post">
 
-<div class="scroll" id="ChatDiv">
-    @*@foreach (var item in Model)
-    {
+    <div class="scroll" id="ChatDiv">
+        @*@foreach (var item in Model)
+        {
         <div style="border:thin solid black">
         <h8  id="serverBox">Server: @item.Server</h8>
         <h8  id="channelBox">Channel: @item.Channel</h8>
         <p   id="timeBox">Time: @item.SenderTime</p>
-            <div class="button-group">
-                <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="RemoveFromFriendList">Remove From Friendlist</button>
-                <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="FriendChatPanel">Message</button>
-                <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="BlockUser">Block</button>
-            </div>
+        <div class="button-group">
+        <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="RemoveFromFriendList">Remove From Friendlist</button>
+        <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="FriendChatPanel">Message</button>
+        <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="BlockUser">Block</button>
+        </div>
         <p  id="senderBox">Message By: @item.SenderName</p>
         <p  id="messageBox">Message: @item.Message1</p>
         </div>
-    }*@
-</div>
+        }*@
+    </div>
 </form>
 @*send message*@
 <form method="post">
-    <input style="border:thick solid black" name="messageInput" type="text" class="msginput" asp-for="@AppMain.Message.Message1" />
-    <button type="submit" class="btnSend" value="messageInput" asp-controller="Home" asp-action="SendMessage"><i class='bx bxs-send'></i></button>
+    <input style="border:thick solid black" value="" name="messageInput" type="text" class="msginput" id="msgInput" asp-for="@AppMain.Message.Message1" />
+    <button type="submit" class="btnSend" value="messageInput" @*asp-controller="Home" asp-action="SendMessage"*@><i class='bx bxs-send'></i></button>
 </form>
-<button id="refreshButton">Refresh Data</button>
+<script>
+    $(document).ready(function () 
+    {
+        // Define a function to retrieve and process the JSON list
+        function retrieveJsonList() 
+        {
+            $.ajax({
+                url: '@Url.Action("ReloadChatScreen", "Home")',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // Clear the existing <p> components
+                    //$('#ChatDiv').remove();
+                    $('#ChatDiv').empty();
+                    // Iterate over the JSON list and create <p> components
+                    data.forEach(function (item) {
+
+                        var serverPara = document.createElement("h6");
+                        serverPara.classList.add('serverBox');
+
+                        var channelPara = document.createElement("p");
+                        channelPara.classList.add('channelBox')
+
+                        var timePara = document.createElement("p");
+                        timePara.classList.add('timeBox')
+
+                        var senderPara = document.createElement("p");
+                        senderPara.classList.add('senderBox');
+
+                        var messagePara = document.createElement("p");
+                        messagePara.classList.add('messageBox');
+
+                        serverPara.textContent = item.server;
+                        channelPara.textContent = item.channel;
+                        timePara.textContent = item.senderTime;
+                        senderPara.textContent = item.senderName;
+                        messagePara.textContent = item.message1;
+
+                        //$('#ChatDiv').append(serverPara);
+                        //$('#ChatDiv').append(channelPara);
+                        $('#ChatDiv').append(timePara);
+                        $('#ChatDiv').append(senderPara);
+                        $('#ChatDiv').append(messagePara);
+
+                        $('#ChatDiv').css('background-color', '#fed9ff');
+                        //$('#serverPara').css();
+                        //$('#channelPara').css();
+                        //$('#timePara').css();
+                        //$('#senderPara').css();
+                        //$('#messagePara').css();
+                        //try to design them maybe?
+                        //document.body.appendChild(serverPara);
+                        //document.body.appendChild(channelPara);
+                        //document.body.appendChild(timePara);
+                        //document.body.appendChild(senderPara);
+                        //document.body.appendChild(messagePara);
+
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        // Call the function initially
+        retrieveJsonList();
+
+        // Call the function every 5 seconds
+        setInterval(retrieveJsonList, 1000);
+    });
+    document.getElementById('msgInput').addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent the default form submission
+
+            var messageInput = document.getElementById('msgInput').value;
+            var formData = new FormData();
+            formData.append('messageInput', messageInput);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Home/SendMessage', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    // Request was successful
+                    console.log(xhr.responseText);
+                    function retrieveJsonList() {
+                        $.ajax({
+                            url: '@Url.Action("ReloadChatScreen", "Home")',
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (data) {
+                                // Clear the existing <p> components
+                                //$('#ChatDiv').remove();
+                                $('#ChatDiv').empty();
+                                // Iterate over the JSON list and create <p> components
+                                data.forEach(function (item) {
+
+                                    var serverPara = document.createElement("h6");
+                                    serverPara.classList.add('serverBox');
+
+                                    var channelPara = document.createElement("p");
+                                    channelPara.classList.add('channelBox')
+
+                                    var timePara = document.createElement("p");
+                                    timePara.classList.add('timeBox')
+
+                                    var senderPara = document.createElement("p");
+                                    senderPara.classList.add('senderBox');
+
+                                    var messagePara = document.createElement("p");
+                                    messagePara.classList.add('messageBox');
+
+                                    serverPara.textContent = item.server;
+                                    channelPara.textContent = item.channel;
+                                    timePara.textContent = item.senderTime;
+                                    senderPara.textContent = item.senderName;
+                                    messagePara.textContent = item.message1;
+
+                                    //$('#ChatDiv').append(serverPara);
+                                    //$('#ChatDiv').append(channelPara);
+                                    $('#ChatDiv').append(timePara);
+                                    $('#ChatDiv').append(senderPara);
+                                    $('#ChatDiv').append(messagePara);
+
+                                    $('#ChatDiv').css('background-color', '#fed9ff');
+                                    //$('#serverPara').css();
+                                    //$('#channelPara').css();
+                                    //$('#timePara').css();
+                                    //$('#senderPara').css();
+                                    //$('#messagePara').css();
+                                    //try to design them maybe?
+                                    //document.body.appendChild(serverPara);
+                                    //document.body.appendChild(channelPara);
+                                    //document.body.appendChild(timePara);
+                                    //document.body.appendChild(senderPara);
+                                    //document.body.appendChild(messagePara);
+
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+                } else {
+                    // Request failed
+                    console.error(xhr.statusText);
+                }
+            };
+            xhr.onerror = function () {
+                console.error('Error occurred while sending the request.');
+            };
+            xhr.send(formData);
+        }
+    });
+</script>
+

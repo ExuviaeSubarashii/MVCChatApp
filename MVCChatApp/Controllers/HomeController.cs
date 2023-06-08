@@ -91,19 +91,24 @@ namespace MVCChatApp.Controllers
         [ValidateAntiForgeryToken]
         public ViewResult ReturnChatScreen(string channelButton)
         {
-            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == channelButton.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-            AppMain.Servers.Channels = channelButton.ToString();
+            //var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == channelButton.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+            if (channelButton==null)
+            {
+                channelButton = AppMain.Servers.Channels;
+            }
+            AppMain.Servers.Channels = channelButton;
             return View("ChatMainScreen"/*, query.ToList()*/);
         }
         [HttpGet]
-        public async Task<IActionResult> ReloadChatScreen()
+        public async Task<ActionResult> ReloadChatScreen()
         {
             var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-            var jsonString = JsonSerializer.Serialize(query);
+            await Task.Delay(3000);
+            //var jsonString = JsonSerializer.Serialize(query);
             return Json(query);
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<ActionResult> SendMessage(string messageInput)
         {
             var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
@@ -118,14 +123,40 @@ namespace MVCChatApp.Controllers
             };
             if (messageInput == null)
             {
-                return View("ChatMainScreen", query.ToList());
+                return Json(query);
             }
             _CP.Messages.Add(newmsg);
             _CP.SaveChanges();
             var queryaftersending = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
             await Task.Delay(1000);
-            return View("ChatMainScreen", queryaftersending);
+            //return View("ChatMainScreen", queryaftersending);
+            //return Json(queryaftersending);
+            return Ok();
         }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> SendMessage(string messageInput)
+        //{
+        //    var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+        //    Message newmsg = new Message()
+        //    {
+        //        Message1 = messageInput,
+        //        SenderName = AppMain.User.Username,
+        //        SenderTime = DateTime.UtcNow,
+        //        Server = AppMain.User.Server,
+        //        Channel = AppMain.Servers.Channels,
+        //        ImageDir = null,
+        //    };
+        //    if (messageInput == null)
+        //    {
+        //        return View("ChatMainScreen", query.ToList());
+        //    }
+        //    _CP.Messages.Add(newmsg);
+        //    _CP.SaveChanges();
+        //    var queryaftersending = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+        //    await Task.Delay(1000);
+        //    return View("ChatMainScreen", queryaftersending);
+        //}
         [HttpGet]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> GetAllMessages()
