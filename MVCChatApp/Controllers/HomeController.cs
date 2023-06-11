@@ -57,7 +57,7 @@ namespace MVCChatApp.Controllers
         {
             if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password))
             {
-                await Task.Delay(1000);
+                //await Task.Delay(1000);
                 return Ok();
             }
 
@@ -67,7 +67,7 @@ namespace MVCChatApp.Controllers
             {
                 AppMain.User = new User { Username = user.Username };
                 var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-                await Task.Delay(1000);
+                //await Task.Delay(1000);
                 return View("ChooseServer", checkserverQuery.ToList());
             }
             else
@@ -133,7 +133,7 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> ReloadChatScreen()
         {
             var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-            await Task.Delay(3000);
+            //await Task.Delay(3000);
             //var jsonString = JsonSerializer.Serialize(query);
             return Json(query);
         }
@@ -295,7 +295,7 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> GetBackToChoosingServer()
         {
             var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             return View("ChooseServer", checkserverQuery.ToList());
         }
         [HttpPost]
@@ -342,7 +342,7 @@ namespace MVCChatApp.Controllers
                 }
                 else
                 {
-                    await Task.Delay(1000);
+                    //await Task.Delay(1000);
                     return View("AddNewFriend");
                 }
                 _CP.SaveChanges();
@@ -358,7 +358,7 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> Home()
         {
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             return View("AddNewFriend", query3);
         }
         [HttpPost]
@@ -388,7 +388,7 @@ namespace MVCChatApp.Controllers
                 _CP.SaveChanges();
             }
             var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            await Task.Delay(1000);
+                //await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
         }
         [HttpPost]
@@ -413,7 +413,7 @@ namespace MVCChatApp.Controllers
                 _CP.SaveChanges();
             }
             var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
         }
         [HttpPost]
@@ -444,7 +444,7 @@ namespace MVCChatApp.Controllers
                 _CP.SaveChanges();
             }
             var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
         }
         //[HttpPost]
@@ -481,8 +481,9 @@ namespace MVCChatApp.Controllers
                 .OrderByDescending(x => x.Id)
                 .ToList();
 
-            await Task.Delay(1000);
-            return View("FriendChatPanel", directMessagesForChat);
+            //await Task.Delay(1000);
+            return View("FriendChatPanel");
+            //, directMessagesForChat
         }
 
         //[HttpPost]
@@ -516,7 +517,6 @@ namespace MVCChatApp.Controllers
 
         //}
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<ActionResult> SendDirectMessage(string messageInput)
         {
             string currentUser = AppMain.User.Username;
@@ -526,7 +526,7 @@ namespace MVCChatApp.Controllers
 
             if (messageInput == null)
             {
-                return View("FriendChatPanel", directMessagesBeforeSending);
+                return Ok();
             }
 
             DirectMessages newMessage = new DirectMessages()
@@ -543,7 +543,7 @@ namespace MVCChatApp.Controllers
             var directMessagesAfterSending = GetDirectMessages(currentUser, receiverName);
 
             await Task.Delay(100);
-            return View("FriendChatPanel", directMessagesAfterSending);
+            return new JsonResult(directMessagesAfterSending);
         }
 
         private List<DirectMessages> GetDirectMessages(string senderName, string receiverName)
@@ -553,6 +553,18 @@ namespace MVCChatApp.Controllers
                             (x.ReceiverName == senderName && x.SenderName == receiverName))
                 .OrderByDescending(x => x.Id)
                 .ToList();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> ReloadFriendChatPanel()
+        {
+            string currentUser = AppMain.User.Username;
+            var directMessagesForChat = _CP.DirectMessages
+                .Where(x => (x.SenderName == currentUser && x.ReceiverName == AppMain.DirectMessages.ReceiverName) ||
+                            (x.ReceiverName == currentUser && x.SenderName == AppMain.DirectMessages.ReceiverName))
+                .OrderByDescending(x => x.Id)
+                .ToList();
+            return Json(directMessagesForChat);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -581,12 +593,30 @@ namespace MVCChatApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteMessage(int messageToDelete)
         {
+            
             var deleteMessageQuery = _CP.Messages.Where(x => x.Id == messageToDelete).FirstOrDefault();
-            if (deleteMessageQuery.SenderName==AppMain.User.Username)
+            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username)
             {
                 _CP.Messages.Remove(deleteMessageQuery);
+                _CP.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return Ok();
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> DeleteDirectMessage(int messageToDelete)
+        {
+            var deleteMessageQuery = _CP.DirectMessages.Where(x => x.Id == messageToDelete).FirstOrDefault();
+            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username)
+            {
+                _CP.DirectMessages.Remove(deleteMessageQuery);
                 _CP.SaveChanges();
                 return Ok();
             }

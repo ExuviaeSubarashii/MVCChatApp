@@ -116,21 +116,6 @@
 <form method="post">
 
     <div class="scroll" id="ChatDiv">
-        @*@foreach (var item in Model)
-        {
-        <div style="border:thin solid black">
-        <h8  id="serverBox">Server: @item.Server</h8>
-        <h8  id="channelBox">Channel: @item.Channel</h8>
-        <p   id="timeBox">Time: @item.SenderTime</p>
-        <div class="button-group">
-        <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="RemoveFromFriendList">Remove From Friendlist</button>
-        <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="FriendChatPanel">Message</button>
-        <button class="optionButtons" name="friendName" type="submit" value="@item.SenderName" asp-controller="Home" asp-action="BlockUser">Block</button>
-        </div>
-        <p  id="senderBox">Message By: @item.SenderName</p>
-        <p  id="messageBox">Message: @item.Message1</p>
-        </div>
-        }*@
     </div>
 </form>
 @*send message*@
@@ -139,20 +124,15 @@
     <button type="submit" class="btnSend" value="messageInput" @*asp-controller="Home" asp-action="SendMessage"*@><i class='bx bxs-send'></i></button>
 </form>
 <script>
-    $(document).ready(function () 
-    {
-        // Define a function to retrieve and process the JSON list
-        function retrieveJsonList() 
+function retrieveJsonList() 
         {
             $.ajax({
                 url: '@Url.Action("ReloadChatScreen", "Home")',
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    // Clear the existing <p> components
-                    //$('#ChatDiv').remove();
                     $('#ChatDiv').empty();
-                    // Iterate over the JSON list and create <p> components
+                    
                     data.forEach(function (item) {
                         var idPara = document.createElement("h6");
                                                             idPara.classList.add('idBox');
@@ -179,16 +159,15 @@
                         idPara.textContent=item.id;
                         //$('#ChatDiv').append(serverPara);
                         //$('#ChatDiv').append(channelPara);
-                        $('#ChatDiv').append(timePara);
-                        $('#ChatDiv').append(senderPara);
                         $('#ChatDiv').append(messagePara);
+                        $('#ChatDiv').append(senderPara);
                         $('#ChatDiv').append(idPara);
-                        $('#ChatDiv').css('background-color', '#fed9ff');
-                        //$('#serverPara').css();
-                        //$('#channelPara').css();
-                        //$('#timePara').css();
-                        //$('#senderPara').css();
-                        //$('#messagePara').css();
+                        $('#ChatDiv').append(timePara);
+                        $('#ChatDiv').css('background-color', '#081b29');
+                        idPara.style.color="#777dda";
+                        timePara.style.color="gray";
+                        messagePara.style.color="white";
+                        senderPara.style.color="#D3D3D3";
                         //try to design them maybe?
                     });
                 },
@@ -197,11 +176,9 @@
                 }
             });
         }
-
-        // Call the function initially
+    $(document).ready(function () 
+    {
         retrieveJsonList();
-
-        // Call the function every 5 seconds
         setInterval(retrieveJsonList, 1000);
     });
     document.getElementById('msgInput').addEventListener('keypress', function (event) {
@@ -220,62 +197,8 @@
                 {
                     // Request was successful
                     console.log(xhr.responseText);
-                    function retrieveJsonList() 
-                    {
-                        $.ajax({
-                            url: '@Url.Action("ReloadChatScreen", "Home")',
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function (data) {
-                                // Clear the existing <p> components
-                                //$('#ChatDiv').remove();
-                                $('#ChatDiv').empty();
-                                // Iterate over the JSON list and create <p> components
-                                data.forEach(function (item) {
-                                    var idPara = document.createElement("h6");
-                                    idPara.classList.add('idBox');
-
-                                    var serverPara = document.createElement("h6");
-                                    serverPara.classList.add('serverBox');
-
-                                    var channelPara = document.createElement("p");
-                                    channelPara.classList.add('channelBox')
-
-                                    var timePara = document.createElement("p");
-                                    timePara.classList.add('timeBox')
-
-                                    var senderPara = document.createElement("p");
-                                    senderPara.classList.add('senderBox');
-
-                                    var messagePara = document.createElement("p");
-                                    messagePara.classList.add('messageBox');
-                                    serverPara.textContent = item.server;
-                                    channelPara.textContent = item.channel;
-                                    timePara.textContent = item.senderTime;
-                                    senderPara.textContent = item.senderName;
-                                    messagePara.textContent = item.message1;
-                                    idPara.textContent=item.Id;
-                                    //$('#ChatDiv').append(serverPara);
-                                    //$('#ChatDiv').append(channelPara);
-                                    $('#ChatDiv').append(timePara);
-                                    $('#ChatDiv').append(senderPara);
-                                    $('#ChatDiv').append(idPara);
-                                    $('#ChatDiv').append(messagePara);
-
-                                    $('#ChatDiv').css('background-color', '#fed9ff');
-                                    //$('#serverPara').css();
-                                    //$('#channelPara').css();
-                                    //$('#timePara').css();
-                                    //$('#senderPara').css();
-                                    //$('#messagePara').css();
-                                    //try to design them maybe?
-                                });
-                            },
-                            error: function (xhr, status, error) {
-                                console.error(error);
-                            }
-                        });
-                    }
+                    retrieveJsonList();
+                    messageInput=null;
                 } else {
                     // Request failed
                     console.error(xhr.statusText);
@@ -332,75 +255,22 @@
            var xhr = new XMLHttpRequest();
            xhr.open('POST', '/Home/DeleteMessage', true);
            xhr.onload = function () 
-                       {
-                           if (xhr.status === 200) 
-                           {
-                               // Request was successful
-                               console.log(xhr.responseText);
-                               function retrieveJsonList() 
-                               {
-                                   $.ajax({
-                                       url: '@Url.Action("ReloadChatScreen", "Home")',
-                                       type: 'GET',
-                                       dataType: 'json',
-                                       success: function (data) {
-                                           // Clear the existing <p> components
-                                           //$('#ChatDiv').remove();
-                                           $('#ChatDiv').empty();
-                                           // Iterate over the JSON list and create <p> components
-                                           data.forEach(function (item) {
-                                               var idPara = document.createElement("h6");
-                                               idPara.classList.add('idBox');
-                                               var serverPara = document.createElement("h6");
-                                               serverPara.classList.add('serverBox');
-           
-                                               var channelPara = document.createElement("p");
-                                               channelPara.classList.add('channelBox')
-           
-                                               var timePara = document.createElement("p");
-                                               timePara.classList.add('timeBox')
-           
-                                               var senderPara = document.createElement("p");
-                                               senderPara.classList.add('senderBox');
-           
-                                               var messagePara = document.createElement("p");
-                                               messagePara.classList.add('messageBox');
-                                               serverPara.textContent = item.server;
-                                               channelPara.textContent = item.channel;
-                                               timePara.textContent = item.senderTime;
-                                               senderPara.textContent = item.senderName;
-                                               messagePara.textContent = item.message1;
-                                               idPara.textContent=item.id;
-                                               //$('#ChatDiv').append(serverPara);
-                                               //$('#ChatDiv').append(channelPara);
-                                               $('#ChatDiv').append(timePara);
-                                               $('#ChatDiv').append(senderPara);
-                                               $('#ChatDiv').append(messagePara);
-                                               $('#ChatDiv').append(idPara);
-                                               $('#ChatDiv').css('background-color', '#fed9ff');
-                                               //$('#serverPara').css();
-                                               //$('#channelPara').css();
-                                               //$('#timePara').css();
-                                               //$('#senderPara').css();
-                                               //$('#messagePara').css();
-                                               //try to design them maybe?
-                                           });
-                                       },
-                                       error: function (xhr, status, error) {
-                                           console.error(error);
-                                       }
-                                   });
-                               }
-                           } else {
-                               // Request failed
-                               console.error(xhr.statusText);
-                           }
-                       };
-                       xhr.onerror = function () {
-                           console.error('Error occurred while sending the request.');
-                       };
-                       xhr.send(formData);
-                   });
+           {
+               if (xhr.status === 200) 
+               {
+                   // Request was successful
+                   console.log(xhr.responseText);
+                   retrieveJsonList();
+               } else {
+                   // Request failed
+                   console.error(xhr.statusText);
+               }
+           };
+           xhr.onerror = function () {
+               console.error('Error occurred while sending the request.');
+           };
+           xhr.send(formData);
+           });
     });
     
 </script>
