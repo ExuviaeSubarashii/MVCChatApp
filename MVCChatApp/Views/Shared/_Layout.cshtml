@@ -16,18 +16,34 @@
             background-color: lightslategray;
             color: tan;
         }
+        .newServerPanel {
+                display: block;
+                width:50px;
+                margin:0;
+                position:fixed;
+                left:0;
+                border-radius: 12px;
+                max-width: 100%;
+                top: 50px;
+            }
     </style>
 </head>
 <body>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<header class="topbuttons">
+    <form method="post">
+        <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
+        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
+    </form>
+</header>
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 

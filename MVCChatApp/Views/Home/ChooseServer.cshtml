@@ -1,5 +1,6 @@
 ﻿@using MVC.Domain.Models;
 @using MVC.Domain.SupClass;
+@using System.Reflection.Metadata
 @model List<MVC.Domain.Models.User>
 @{
     string[] sw;
@@ -52,12 +53,12 @@
             background-color: #00abf0;
         }
 </style>
-<header class="topbuttons">
-    <form method="post">
-        <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
-        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
-    </form>
-</header>
+@* <header class="topbuttons"> *@
+@*     <form method="post"> *@
+@*         <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button> *@
+@*         <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button> *@
+@*     </form> *@
+@* </header> *@
 @*joining and creating a new server*@
 <form method="post">
     <div class="joinorcreateserver">
@@ -68,29 +69,33 @@
         </div>
     </div>
 </form>
-@*sending the data of selected server name*@
-<form method="post">
-    <div class="serverdiv">
-        @if (Model != null)
-        {
-            @foreach (var item in Model)
-            {
-                sw = item.Server.Split(',');
-                for (int i = 0; i < sw.Count(); i++)
-                {
-                    user.Server = sw[i];
-                    <button name="serverButton"
-                            type="submit"
-                            class="serverselectionbutton"
-                            value="@user.Server"
-                            asp-controller="Home"
-                            asp-action="GetAllChannels">
-                        @user.Server
-                    </button>
-                }
-            }
-        }
-    </div>
-</form>
+@* sending the data of selected server name *@
+ <form method="post">
+     <div class="serverdiv">
+         @if (Model != null)
+         {
+             @foreach (var item in Model)
+             {
+                 sw = item.Server.Split(',');
+                 for (int i = 0; i < sw.Count(); i++)
+                 {
+                     user.Server = sw[i];
+                     <button name="serverButton"
+                             type="submit"
+                             class="serverselectionbutton"
+                             value="@user.Server"
+                             asp-controller="Home"
+                             asp-action="GetAllChannels">
+                         @user.Server
+                     </button>
+                 }
+             }
+         }
+     </div>
+ </form>
+
+
+
+
 
 

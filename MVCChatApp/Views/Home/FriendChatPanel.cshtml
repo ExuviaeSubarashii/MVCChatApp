@@ -7,14 +7,26 @@
 <body>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<div class="userPanel">
+<p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
+</div>
 <style>
+.userPanel {
+        color: white;
+        position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 241px;
+          background-color: #232428;
+    }
         .receiverTitleName {
             color: white;
             max-width: 100%;
         }
 
         body {
-            background-color: #081b29;
+            /*background-color: #081b29;*/
+            background-color: #36393F;
             max-width: 100%;
         }
 
@@ -88,6 +100,16 @@
             border:none;
             
         }
+          .newServerPanel {
+                        display: block;
+                        width:50px;
+                        margin:0;
+                        position:fixed;
+                        left:0;
+                        border-radius: 12px;
+                        max-width: 100%;
+                        top: 50px;
+                    }
     </style>
 <header class="topbuttons">
     <form method="post">
@@ -121,6 +143,8 @@
     @* asp-controller="Home" asp-action="SendDirectMessage" *@
         
 </form>
+<div class="newServerPanel" id="newServerPanel">
+</div>
 </body>
 <script>
 function retrieveJsonList()
@@ -164,13 +188,15 @@ function retrieveJsonList()
      }
     });
 }
+
 $(document).ready(function () 
         {
             retrieveJsonList();
             setInterval(retrieveJsonList, 1000);
         });
    document.getElementById('msgInput').addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter') 
+        {
             event.preventDefault(); // Prevent the default form submission
 
             var messageInput = document.getElementById('msgInput').value;
@@ -178,6 +204,7 @@ $(document).ready(function ()
             formData.append('messageInput', messageInput);
 
             var xhr = new XMLHttpRequest();
+         
             xhr.open('POST', '/Home/SendDirectMessage', true);
             xhr.onload = function () 
             {
@@ -186,16 +213,18 @@ $(document).ready(function ()
                     // Request was successful
                     console.log(xhr.responseText);
                     retrieveJsonList();
-                    messageInput=null;
+                    document.getElementById('msgInput').value='';    
                 } else {
                     // Request failed
                     console.error(xhr.statusText);
                 }
             };
+            }
+            else
+                {
             xhr.onerror = function () {
                 console.error('Error occurred while sending the request.');
             };
-            xhr.send(formData);
         }
     });
    

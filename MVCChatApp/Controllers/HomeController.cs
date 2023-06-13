@@ -115,7 +115,7 @@ namespace MVCChatApp.Controllers
         {
             var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
             AppMain.User.Server = serverButton.Trim();
-            return View("ChooseChannel", query);
+            return View("ChooseChannel",query);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -624,6 +624,13 @@ namespace MVCChatApp.Controllers
             {
                 return Ok();
             }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetAllServers()
+        {
+            var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            return Json(checkserverQuery);
         }
         public IActionResult Index()
         {
