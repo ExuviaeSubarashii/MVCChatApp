@@ -593,7 +593,6 @@ namespace MVCChatApp.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteMessage(int messageToDelete)
         {
             
