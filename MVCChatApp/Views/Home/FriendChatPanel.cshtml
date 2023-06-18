@@ -6,7 +6,7 @@
 @model IEnumerable<DirectMessages>
 <body>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <div class="userPanel">
 <p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
 </div>
@@ -123,17 +123,6 @@
     <p class="receiverTitleName">@AppMain.DirectMessages.ReceiverName</p>
 
     <div class="ChatPanel" id="ChatPanel">
-        @* @if (Model != null) *@
-        @* { *@
-        @*     @foreach (var item in Model) *@
-        @*     { *@
-        @*         <div class="weball" style="border:thin solid black"> *@
-        @*         <p class="timeBox" id="timeBox">At: @item.MessageDate</p> *@
-        @*             <p class="senderBox" id="senderBox">@item.SenderName</p> *@
-        @*         <p class="messageBox" id="messageBox">@item.Message</p> *@
-        @*         </div> *@
-        @*     } *@
-        @* } *@
     </div>
 </form>
 <form method="post">
@@ -146,6 +135,7 @@
 <div class="newServerPanel" id="newServerPanel">
 </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 function retrieveJsonList()
 {
@@ -194,39 +184,39 @@ $(document).ready(function ()
             retrieveJsonList();
             setInterval(retrieveJsonList, 1000);
         });
-   document.getElementById('msgInput').addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') 
-        {
-            event.preventDefault(); // Prevent the default form submission
-
-            var messageInput = document.getElementById('msgInput').value;
-            var formData = new FormData();
-            formData.append('messageInput', messageInput);
-
-            var xhr = new XMLHttpRequest();
-         
-            xhr.open('POST', '/Home/SendDirectMessage', true);
-            xhr.onload = function () 
-            {
-                if (xhr.status === 200) 
-                {
-                    // Request was successful
-                    console.log(xhr.responseText);
-                    retrieveJsonList();
-                    document.getElementById('msgInput').value='';    
-                } else {
-                    // Request failed
-                    console.error(xhr.statusText);
-                }
-            };
-            }
-            else
-                {
-            xhr.onerror = function () {
-                console.error('Error occurred while sending the request.');
-            };
-        }
-    });
+      var msgInput = document.getElementById('msgInput');
+      
+      msgInput.addEventListener('keypress', function(event) {
+          if (event.key === 'Enter') {
+              event.preventDefault(); // Prevent the default form submission
+      
+              var messageInput = msgInput.value.trim();
+              if (messageInput !== '') {
+                  var formData = new FormData();
+                  formData.append('messageInput', messageInput);
+      
+                  var xhr = new XMLHttpRequest();
+                  xhr.open('POST', '/Home/SendDirectMessage', true);
+                  xhr.onload = function() {
+                      if (xhr.status === 200) {
+                          // Request was successful
+                          console.log(xhr.responseText);
+                          retrieveJsonList();
+                          msgInput.value = '';
+                      } else {
+                          // Request failed
+                          console.error(xhr.statusText);
+                      }
+                  };
+                  xhr.onerror = function() {
+                      console.error('Error occurred while sending the request.');
+                  };
+                  xhr.send(formData);
+              } else {
+                  return void 0;
+              }
+          }
+      });
    
    document.addEventListener('contextmenu', function(event) {
            event.preventDefault();

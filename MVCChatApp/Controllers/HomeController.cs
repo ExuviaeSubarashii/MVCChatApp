@@ -508,7 +508,7 @@ namespace MVCChatApp.Controllers
         {
             
             var deleteMessageQuery = _CP.Messages.Where(x => x.Id == messageToDelete).FirstOrDefault();
-            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username)
+            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username.Trim())
             {
                 _CP.Messages.Remove(deleteMessageQuery);
                 _CP.SaveChanges();
@@ -524,7 +524,7 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> DeleteDirectMessage(int messageToDelete)
         {
             var deleteMessageQuery = _CP.DirectMessages.Where(x => x.Id == messageToDelete).FirstOrDefault();
-            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username)
+            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username.Trim())
             {
                 _CP.DirectMessages.Remove(deleteMessageQuery);
                 _CP.SaveChanges();
