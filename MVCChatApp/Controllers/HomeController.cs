@@ -20,54 +20,22 @@ namespace MVCChatApp.Controllers
             _logger = logger;
             _CP = CP;
         }
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> Login(User user)
-        //{
-        //    if (user.Username != null && user.Password != null)
-        //    {
-        //        var checkUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
-
-        //        if (checkUserExists && user != null)
-        //        {
-        //            AppMain.User = new User();
-        //            AppMain.User.Username = user.Username;
-        //            var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-        //            await Task.Delay(1000);
-        //            return View("ChooseServer", checkserverQuery.ToList());
-        //        }
-        //        else
-        //        {
-        //            var log = new LoggerConfiguration()
-        //            .WriteTo.File("UserLogs/UserFailedLogs.txt")
-        //            .CreateLogger();
-        //            log.Information($"User {AppMain.User.Username}" +
-        //            "Failed Login.");
-        //            log.Information("------------------------------------------------------------");
-        //            return NotFound();
-        //        }
-        //    }
-        //    await Task.Delay(1000);
-        //    return Ok();
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(User user)
         {
-            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password))
+            if (string.IsNullOrEmpty(user.EMail) || string.IsNullOrEmpty(user.Password))
             {
-                //await Task.Delay(1000);
-                return Ok();
+                return View("Index");
             }
 
-            var checkUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
-
+            var checkUserExists = _CP.Users.Any(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
+            var isthistheuser=_CP.Users.Where(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd()).FirstOrDefault();
             if (checkUserExists)
             {
-                AppMain.User = new User { Username = user.Username };
-                var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-                //await Task.Delay(1000);
+                AppMain.User = new User { Username = isthistheuser.Username , EMail = user.EMail};
+                var checkserverQuery = _CP.Users.Where(x => x.EMail.Trim() == AppMain.User.EMail).ToList();
                 return View("ChooseServer", checkserverQuery.ToList());
             }
             else
@@ -84,18 +52,19 @@ namespace MVCChatApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> RegisterAccount(User user)
         {
-            var query = _CP.Users.Where(x => x.Username == user.Username).Any();
+            var query = _CP.Users.Where(x => x.EMail == user.EMail).Any();
             User newUser = new User()
             {
                 Username = user.Username,
                 Password = user.Password,
+                EMail = user.EMail,
                 HasPassword = user.Password.ConvertStringToMD5(),
                 Image = null,
                 Server = "Main"
             };
             if (query == true)
             {
-                return StatusCode(500);
+                return View("RegisterPage");
             }
             else if (user.Username == null || user.Username == "" || string.IsNullOrEmpty(user.Username))
             {
@@ -109,6 +78,11 @@ namespace MVCChatApp.Controllers
                 return RedirectToAction("Index");
             }
         }
+        public ActionResult RegisterPage()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult GetAllChannels(string serverButton)
@@ -161,30 +135,6 @@ namespace MVCChatApp.Controllers
             await Task.Delay(1000);
             return Ok();
         }
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> SendMessage(string messageInput)
-        //{
-        //    var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-        //    Message newmsg = new Message()
-        //    {
-        //        Message1 = messageInput,
-        //        SenderName = AppMain.User.Username,
-        //        SenderTime = DateTime.UtcNow,
-        //        Server = AppMain.User.Server,
-        //        Channel = AppMain.Servers.Channels,
-        //        ImageDir = null,
-        //    };
-        //    if (messageInput == null)
-        //    {
-        //        return View("ChatMainScreen", query.ToList());
-        //    }
-        //    _CP.Messages.Add(newmsg);
-        //    _CP.SaveChanges();
-        //    var queryaftersending = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-        //    await Task.Delay(1000);
-        //    return View("ChatMainScreen", queryaftersending);
-        //}
         [HttpGet]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> GetAllMessages()
@@ -231,9 +181,9 @@ namespace MVCChatApp.Controllers
             var checkifUServerExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == newserverInput.TrimEnd());
             var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
             var checkIfUserIsAlreadyInThisServer = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Server.Contains(newserverInput.Trim()));
-            if (checkifUServerExists)
+            if (checkifUServerExists==false)
             {
-                if (!checkIfUserIsAlreadyInThisServer)
+                if (checkIfUserIsAlreadyInThisServer==false)
                 {
                     theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
                     var log = new LoggerConfiguration()
@@ -241,13 +191,14 @@ namespace MVCChatApp.Controllers
                     .CreateLogger();
                     log.Information($"User {AppMain.User.Username} Joined at {DateTime.Now}.");
                     log.Information("------------------------------------------------------------");
+                    _CP.SaveChanges();
                 }
             }
             else
             {
                 return View("ChooseServer", returnthisWhenServerDoesNotExist);
             }
-            _CP.SaveChanges();
+            
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             await Task.Delay(1000);
             return View("ChooseServer", query3.ToList());
@@ -305,27 +256,6 @@ namespace MVCChatApp.Controllers
             AppMain.User.Username = "";
             return View("Index");
         }
-        //[HttpPost]
-        //public async Task<ActionResult> SendFriendRequest(string friendName)
-        //{
-        //	//change this to accepting friend request i guess, i will try to make it like as if  user can accept or decline
-        //	var checkifUserExists = _CP.Users.Any(x => x.Username.Trim() == friendName.Trim());
-        //	var checkIfUserIsAlreadyFriend = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Friends.Contains(friendName.Trim()));
-        //	var willAddtoFriendList = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
-        //	if (checkifUserExists&& !checkIfUserIsAlreadyFriend&&friendName!=null)
-        //	{
-        //	   willAddtoFriendList.Friends = willAddtoFriendList.Friends.Trim() + "," + friendName.Trim();
-        //	}
-        //	else
-        //	{
-        //		await Task.Delay(1000);
-        //		return View("AddNewFriend");
-        //	}
-        //	_CP.SaveChanges();
-        //	var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-        //	await Task.Delay(1000);
-        //	return View("AddNewFriend",query3);
-        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SendFriendRequest(string friendName)
@@ -343,7 +273,8 @@ namespace MVCChatApp.Controllers
                 else
                 {
                     //await Task.Delay(1000);
-                    return View("AddNewFriend");
+                    var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();                    
+                    return View("AddNewFriend",query);
                 }
                 _CP.SaveChanges();
             }
@@ -367,6 +298,7 @@ namespace MVCChatApp.Controllers
         {
             if (friendName != null)
             {
+                //kabul edenin tarafinda ekle
                 var willAddtoFriendList = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
                 willAddtoFriendList.Friends = willAddtoFriendList.Friends.Trim() + "," + friendName.Trim();
                 _CP.SaveChanges();
@@ -385,6 +317,32 @@ namespace MVCChatApp.Controllers
                 string[] columns = list.ToArray();
                 var newfriendList = string.Join(",", columns);
                 query.FriendRequests = newfriendList;
+                _CP.SaveChanges();
+
+                //gonderenin tarafinda ekle
+                var senderwillAddtoFriendList= _CP.Users.Where(x => x.Username.TrimEnd() == friendName.Trim()).FirstOrDefault();
+
+                senderwillAddtoFriendList.Friends = senderwillAddtoFriendList.Friends.Trim() + "," + AppMain.User.Username.Trim();
+
+                _CP.SaveChanges();
+                //remove the friendrequest from the database by sender side
+                string[] senderacceptedfriendRequest = null;
+                List<string> sw2 = new List<string>();
+
+                var query3 = _CP.Users.Where(x => x.Username.Trim() == friendName.Trim()).FirstOrDefault();
+                var query4 = _CP.Users.Where(x => x.Username == friendName.Trim()).ToList();
+
+                foreach (var item in query4)
+                {
+                    senderacceptedfriendRequest = item.FriendRequests.Split(',');
+                }
+
+                List<String> senderlist = senderacceptedfriendRequest.ToList();
+                list.Remove(AppMain.User.Username);
+
+                string[] sendercolumns = list.ToArray();
+                var sendernewfriendList = string.Join(",", sendercolumns);
+                query3.FriendRequests = sendernewfriendList;
                 _CP.SaveChanges();
             }
             var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
@@ -447,23 +405,7 @@ namespace MVCChatApp.Controllers
             //await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
         }
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> FriendChatPanel(string friendName)
-        //{
-        //    AppMain.DirectMessages = new MVC.Domain.Models.DirectMessages
-        //    {
-        //        ReceiverName = friendName.Trim()
-        //    };
 
-        //    var querybySenderNameAfterSending = _CP.DirectMessages.Where(
-        //    x => x.SenderName == AppMain.User.Username && x.ReceiverName == AppMain.DirectMessages.ReceiverName
-        //    ||
-        //    x.ReceiverName == AppMain.User.Username && x.SenderName == AppMain.DirectMessages.ReceiverName).OrderByDescending(x => x.Id).ToList();
-
-        //    await Task.Delay(1000);
-        //    return View("FriendChatPanel", querybySenderNameAfterSending);
-        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> FriendChatPanel(string friendName)
@@ -483,39 +425,8 @@ namespace MVCChatApp.Controllers
 
             //await Task.Delay(1000);
             return View("FriendChatPanel");
-            //, directMessagesForChat
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> SendDirectMessage(string messageInput)
-        //{
-        //    var querybySenderNameBeforeSending = _CP.DirectMessages.Where(
-        //     x => x.SenderName == AppMain.User.Username && x.ReceiverName == AppMain.DirectMessages.ReceiverName
-        //     ||
-        //     x.ReceiverName == AppMain.User.Username && x.SenderName == AppMain.DirectMessages.ReceiverName).OrderByDescending(x => x.Id).ToList();
-
-        //    if (messageInput == null)
-        //    {
-        //        return View("FriendChatPanel", querybySenderNameBeforeSending);
-        //    }
-        //    DirectMessages newmsg = new DirectMessages()
-        //    {
-        //        Message = messageInput.Trim(),
-        //        MessageDate = DateTime.Now,
-        //        ReceiverName = AppMain.DirectMessages.ReceiverName.Trim(),
-        //        SenderName = AppMain.User.Username.Trim(),
-        //    };
-        //    _CP.DirectMessages.Add(newmsg);
-        //    _CP.SaveChanges();
-        //    var querybySenderNameAfterSending = _CP.DirectMessages.Where(
-        //     x => x.SenderName == AppMain.User.Username && x.ReceiverName == AppMain.DirectMessages.ReceiverName
-        //     ||
-        //     x.ReceiverName == AppMain.User.Username && x.SenderName == AppMain.DirectMessages.ReceiverName).OrderByDescending(x => x.Id).ToList();
-        //    await Task.Delay(100);
-        //    return View("FriendChatPanel", querybySenderNameAfterSending);
-
-        //}
+        
         [HttpPost]
         public async Task<ActionResult> SendDirectMessage(string messageInput)
         {

@@ -125,6 +125,10 @@ namespace MVC.Domain.Models
                     .HasMaxLength(500)
                     .IsUnicode(false)
                     .IsFixedLength();
+                entity.Property(e => e.EMail)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .IsFixedLength();
             });
             modelBuilder.Entity<DirectMessages>(entity =>
             {

@@ -13,6 +13,7 @@ namespace MVC.Domain.Models
         public string? Server { get; set; }
         public string? Friends { get; set; }
         public string? FriendRequests { get; set; }
-        public string BlockedUsers { get; set; }
+        public string? BlockedUsers { get; set; }
+        public string? EMail { get; set; }
     }
 }

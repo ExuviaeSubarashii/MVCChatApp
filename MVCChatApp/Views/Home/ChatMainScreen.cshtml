@@ -7,7 +7,6 @@
 @model IEnumerable<Message>
 <p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
 <p class="serverNotif">Currently in the server @AppMain.User.Server and channel @AppMain.Servers.Channels</p>
-<p class="channelNotif"></p>
 @{
     AppMain.Message = new MVC.Domain.Models.Message();
 }
@@ -33,7 +32,7 @@
         height: 500px;
         text-align: center;
         padding: 20px;
-        background-color: #36393F;
+        background-color: #081b29;
         overflow: auto;
         display: flex;
         flex-direction: column-reverse;
@@ -137,7 +136,7 @@
 @*set the messages*@
 <form method="post">
 
-    <div class="scroll" id="ChatDiv">
+    <div class="ChatDiv" id="ChatDiv">
     </div>
 </form>
 @*send message*@
@@ -187,7 +186,7 @@ function retrieveJsonList()
                         $('#ChatDiv').append(senderPara);
                         $('#ChatDiv').append(idPara);
                         $('#ChatDiv').append(timePara);
-                        $('#ChatDiv').css('background-color', '#36393F');
+                        //$('#ChatDiv').css('background-color', '#36393F');
                         idPara.style.color="#777dda";
                         timePara.style.color="gray";
                         messagePara.style.color="white";

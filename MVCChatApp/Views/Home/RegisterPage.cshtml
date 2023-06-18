@@ -1,0 +1,93 @@
+﻿@model MVC.Domain.Models.User;
+
+
+<style>
+    .registerBtn{
+            background-color:#6c65f3;
+            color:white;
+            display: block;
+            max-width: 100%;
+            width: 250px;
+        }
+        body{
+        background-color: #081b29;
+        max-width: 100%;
+        }
+        .loginDiv
+        {
+        margin: auto;
+        width: 35%;
+        border: 3px solid green;
+        padding: 10px;
+        height:350px;
+        align-items:center;
+        max-width: 100%;
+        background-color: #313338;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        }
+        .userInput{
+         display: block;
+         max-width: 100%;
+         background-color: black;
+         color: white;
+         width: 250px;
+         }
+          .form-label{
+          color:white;
+          display: block;
+          max-width: 100%;
+           }
+          .returntoLogin 
+          {
+            color: blue;
+            display: block;
+            max-width: 100%;
+          }
+</style>
+<body>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<form method="post">
+    <div class="loginDiv">
+        <label class="form-label">E-MAIL</label>
+        <input type="text" class="userInput" id="EmailInput" asp-for="EMail" width="20"/>
+        <label class="form-label">USERNAME</label>
+        @*get the email*@
+        <input type="text" class="userInput" id="userNameInput" asp-for="Username" width="20"/>
+        <label class="form-label">Password</label>
+        @*get the password*@
+        <input type="text" class="userInput" id="userPasswordInput" asp-for="Password"/>
+        <br/>
+        <button type="submit" id="registerBtn" asp-controller="Home" asp-action="RegisterAccount" class="registerBtn">Register</button>
+        <a asp-controller="Home" asp-action="Index" class="returntoLogin">Already have an Account?</a>
+    </div>
+</form>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+const EmailInput=document.getElementById('EmailInput');
+const UserNameInput=document.getElementById('userNameInput');
+const userPasswordInput=document.getElementById('userPasswordInput');
+
+EmailInput.addEventListener('input', checkInputs);
+UserNameInput.addEventListener('input', checkInputs);
+userPasswordInput.addEventListener('input', checkInputs);
+    
+const registerBtn=document.getElementById('registerBtn');
+function checkInputs() {
+  // Check if both input boxes are empty
+  if (EmailInput.value === '' || userPasswordInput.value === ''||UserNameInput.value==='') {
+    registerBtn.disabled = true; // Disable the button
+  } else {
+    registerBtn.disabled = false; // Enable the button
+  }
+}
+checkInputs();
+//const passwordInput = document.getElementById('userPasswordInput');
+
+//passwordInput.addEventListener('input', function() {
+//  this.value = '*'.repeat(this.value.length);
+//});
+</script>

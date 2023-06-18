@@ -11,12 +11,22 @@
         int[] friendrequestIdArray;
         var user = new MVC.Domain.Models.User();
     }
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<div class="userPanel">
+<p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
+</div>
     <style>
         body {
             background-color: #081b29;
         }
-
+.userPanel {
+        color: white;
+        position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 241px;
+          background-color: #232428;
+    }
         .friends {
             display: block;
         }
@@ -52,7 +62,7 @@
     <form method="post">
         <div>
             <input name="friendName" type="text" class="friendName" />
-            @*<input name="friendId" type="text" class="friendId" value="@AppMain.User.Id"/>*@
+            @* <input name="friendId" type="text" class="friendId" value="@AppMain.User.Id"/> *@
             <button type="submit" class="btnaddFriend" value="friendName" asp-controller="Home" asp-action="SendFriendRequest">AddFriend</button>
         </div>
     </form>

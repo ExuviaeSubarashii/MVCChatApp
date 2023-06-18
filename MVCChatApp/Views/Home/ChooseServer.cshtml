@@ -7,11 +7,21 @@
     var user = new MVC.Domain.Models.User();
 }
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<div class="userPanel">
+<p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
+</div>
 <style>
     body {
         background-color: #081b29;
     }
-
+.userPanel {
+        color: white;
+        position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 241px;
+          background-color: #232428;
+    }
     .HomeButton {
         top:5px;
         position: fixed;
@@ -53,12 +63,12 @@
             background-color: #00abf0;
         }
 </style>
-@* <header class="topbuttons"> *@
-@*     <form method="post"> *@
-@*         <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button> *@
-@*         <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button> *@
-@*     </form> *@
-@* </header> *@
+<header class="topbuttons">
+    <form method="post">
+        <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
+        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
+    </form>
+</header>
 @*joining and creating a new server*@
 <form method="post">
     <div class="joinorcreateserver">
