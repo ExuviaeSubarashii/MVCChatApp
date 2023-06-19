@@ -7,6 +7,7 @@ using MVCChatApp.Models;
 using Serilog;
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MVCChatApp.Controllers
@@ -82,7 +83,6 @@ namespace MVCChatApp.Controllers
         {
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult GetAllChannels(string serverButton)
@@ -91,28 +91,39 @@ namespace MVCChatApp.Controllers
             AppMain.User.Server = serverButton.Trim();
             return View("ChooseChannel",query);
         }
+        
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ViewResult ReturnChatScreen(string channelButton)
+        public async Task<IActionResult> GetAllChannelsByJs(string serverButton)
         {
-            //var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == channelButton.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+            var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
+            AppMain.User.Server = serverButton.Trim();
+            //return View("ChooseChannel",query);
+            var query2 = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).FirstOrDefault();
+            string[] channelNames = null;
+            foreach (var item in query)
+            {
+                channelNames = item.Channels.Split(',');
+            }
+            return Json(channelNames);
+        }
+        [HttpPost]
+        public ActionResult ReturnChatScreen(string channelButton,string serverButton)
+        {
             if (channelButton == null)
             {
                 channelButton = AppMain.Servers.Channels;
             }
-            AppMain.Servers.Channels = channelButton;
-            return View("ChatMainScreen"/*, query.ToList()*/);
+
+            AppMain.Servers = new Server { Channels = channelButton };
+            return View("ChatMainScreen");
         }
         [HttpGet]
         public async Task<ActionResult> ReloadChatScreen()
         {
             var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-            //await Task.Delay(3000);
-            //var jsonString = JsonSerializer.Serialize(query);
             return Json(query);
         }
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         public async Task<ActionResult> SendMessage(string messageInput)
         {
             var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
@@ -142,7 +153,6 @@ namespace MVCChatApp.Controllers
             var queryaftersending = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
             return Ok(queryaftersending);
         }
-        #region CreateNewServer
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateNewServer(string newserverInput)
@@ -168,8 +178,6 @@ namespace MVCChatApp.Controllers
             await Task.Delay(1000);
             return View("ChooseServer", query3.ToList());
         }
-        #endregion
-        #region JoinServer - first checks if the servers exists, if turns true it will add to the database if it does not exists it will return back to ChooseServer 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> JoinServer(string newserverInput)
@@ -203,8 +211,6 @@ namespace MVCChatApp.Controllers
             await Task.Delay(1000);
             return View("ChooseServer", query3.ToList());
         }
-        #endregion
-        #region CreateNewChannel - check first if user is the owner of the server and adds If not it will turn back.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateNewChannel(string newchannelInput)
@@ -240,7 +246,6 @@ namespace MVCChatApp.Controllers
             var query5 = _CP.Servers.Where(x => x.ServerName.Trim() == AppMain.User.Server.Trim()).ToList();
             return View("ChooseChannel", query5);
         }
-        #endregion
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> GetBackToChoosingServer()
@@ -289,7 +294,6 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> Home()
         {
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            //await Task.Delay(1000);
             return View("AddNewFriend", query3);
         }
         [HttpPost]
@@ -465,7 +469,6 @@ namespace MVCChatApp.Controllers
                 .OrderByDescending(x => x.Id)
                 .ToList();
         }
-
         [HttpGet]
         public async Task<ActionResult> ReloadFriendChatPanel()
         {
@@ -502,7 +505,6 @@ namespace MVCChatApp.Controllers
             await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
         }
-
         [HttpPost]
         public async Task<ActionResult> DeleteMessage(int messageToDelete)
         {
@@ -519,7 +521,6 @@ namespace MVCChatApp.Controllers
                 return Ok();
             }
         }
-
         [HttpPost]
         public async Task<ActionResult> DeleteDirectMessage(int messageToDelete)
         {
@@ -535,12 +536,16 @@ namespace MVCChatApp.Controllers
                 return Ok();
             }
         }
-
         [HttpGet]
         public async Task<ActionResult> GetAllServers()
         {
             var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            return Json(checkserverQuery);
+            string[] serverArray=null;
+            foreach (var item in checkserverQuery)
+            {
+                serverArray = item.Server.Split(',');
+            }
+            return Json(serverArray);
         }
         public IActionResult Index()
         {
@@ -550,6 +555,12 @@ namespace MVCChatApp.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpPost]
+        public IActionResult serverwithjstestpage()
+        {
+            return View("ServerWithJsTest");
         }
     }
 }

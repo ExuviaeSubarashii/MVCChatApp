@@ -106,18 +106,9 @@
     <form method="post">
         <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
         <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
+        @* <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button> *@
     </form>
 </header>
-@*joining and creating a new server*@
-<form method="post">
-    <div class="joinorcreateserver">
-        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-            <input style="border:thick solid black" name="newserverInput" type="text" class="srvrinput" />
-            <button type="submit" class="btnJoinServer" value="newserverInput" asp-controller="Home" asp-action="JoinServer">Join a New Server</button>
-            <button type="submit" class="btnJoinServer" value="newserverInput" asp-controller="Home" asp-action="CreateNewServer">Create a New Server</button>
-        </div>
-    </div>
-</form>
 
 <div class="serverdiv" id="serverdiv">
     <div id="channelDiv">
