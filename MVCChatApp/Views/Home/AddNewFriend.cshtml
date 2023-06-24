@@ -1,7 +1,7 @@
 ﻿<body>
     @using MVC.Domain.Models;
     @using MVC.Domain.SupClass;
-    @using MVC.Service.Service;
+    @using MVC.Service.Helpers;
     @using Newtonsoft.Json;
     @model List<MVC.Domain.Models.User>
 
@@ -62,8 +62,7 @@
     <form method="post">
         <div>
             <input name="friendName" type="text" class="friendName" />
-            @* <input name="friendId" type="text" class="friendId" value="@AppMain.User.Id"/> *@
-            <button type="submit" class="btnaddFriend" value="friendName" asp-controller="Home" asp-action="SendFriendRequest">AddFriend</button>
+            <button type="submit" class="btnaddFriend" value="friendName" asp-controller="Home" asp-action="SendFriendRequest"><i class='bx bx-user-plus'></i></button>
         </div>
     </form>
     <form method="post">

@@ -1,46 +1,5 @@
-﻿@using MVC.Domain.Models;
-@using MVC.Domain.SupClass;
-@using MVC.Service.Service;
-@using Newtonsoft.Json;
-@using System.Text;
-@using Microsoft.AspNetCore.SignalR;
-@model IEnumerable<Message>
-<p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
-<p class="serverNotif">Currently in the server @AppMain.User.Server and channel @AppMain.Servers.Channels</p>
-@{
-    AppMain.Message = new MVC.Domain.Models.Message();
-}
-
-
-
+﻿@using MVC.Domain.SupClass
 <style>
-    .userNotif {
-        color: white;
-        position: absolute;
-          bottom: 0;
-          left: 0;
-    }
-
-    .serverNotif {
-        color: white;
-        max-width: 100%;
-    }
-
-    #ChatDiv {
-        /*background-color: #fed9ff;*/
-        width: 1295px;
-        height: 500px;
-        text-align: center;
-        padding: 20px;
-        background-color: #081b29;
-        overflow: auto;
-        display: flex;
-        flex-direction: column-reverse;
-        max-width: 100%;
-        border-radius: 30px 5px;
-        border-color: black;
-        border-style: solid;
-    }
 
     body {
         /*background-color: #081b29;*/
@@ -64,167 +23,399 @@
         border-radius: 10px;
     }
 
-    .btnSend {
-        background: #081b29;
-        color: blanchedalmond;
-        border: double;
-        border-radius: 5px;
-        max-width: 100%;
+    /*.serverdiv {*/
+    /*    display: block;*/
+    /*    width: 80px;*/
+    /*    margin: 0;*/
+    /*    position: fixed;*/
+    /*    left: 0;*/
+    /*    border-radius: 12px;*/
+    /*    max-width: 100%;*/
+    /*    text-align: center;*/
+    /*}*/
+.serverdiv {
+  display: block;
+          width: 80px;
+          margin: 0;
+          position: fixed;
+          left: 0;
+          border-radius: 12px;
+          max-width: 100%;
+          text-align: center;
+          overflow: auto;
+}
+.channelDiv {
+display: block;
+width: 80px;
+margin: 0;
+position: fixed;
+left: 90px;
+border-radius: 12px;
+max-width: 100%;
+text-align: center;
+overflow: auto;
+    }
+    .channelDiv, .serverdiv {
+      padding: 10px;
+      border: 1px solid #ccc;
+      
+    }
+    .channelcreatedButton {
+        background-color: #0a53be;
+        display: block;
     }
 
-    .msginput {
-        width: 1200px;
-        height: 50px;
-        max-width: 100%;
-        border-radius: 30px;
-        background-color: gray;
+    .serverbutton:active {
+        background-color: #bb2d3b;
     }
-.messageBox
-        {
-          color: white;
-          left: 500px;
-        }
-        .timeBox
-        {
-          color: ghostwhite;
-          position:relative;
-        }
-        .senderBox
-        {
-          color: lightgray;
-          font-weight: bold;
-          position:relative;
-          left: -600px;
-        }
-        .idBox
-        {
+
+    #ChatDiv {
+        /*background-color: #fed9ff;*/
+        width: 1295px;
+        height: 780px;
+        text-align: center;
+        padding: 20px;
+        background-color: #081b29;
+        overflow: auto;
+        display: flex;
+        flex-direction: column-reverse;
+        max-width: 100%;
+        border-radius: 30px 5px;
+        border-color: black;
+        border-style: solid;
+        left: 50px;
+    }
+
+    .messageBox {
+        color: white;
+        left: 500px;
+    }
+
+    .timeBox {
+        color: ghostwhite;
+        position: relative;
+    }
+
+    .senderBox {
+        color: lightgray;
+        font-weight: bold;
+        position: relative;
+        left: -600px;
+    }
+
+    .idBox {
         color: honeydew;
         border-color: black;
-                border-style: solid;
-        }
+        border-style: solid;
+    }
+
     .HomeButton {
-        position: fixed;
-        /*left: 0;*/
+        /*position: fixed;*/
+        left: -10px;
         background-color: lightgray;
         border-radius: 12px;
-        /*top: 5px;*/
+        top: 5px;
         max-width: 100%;
     }
 
-        .HomeButton:hover {
+     .HomeButton:hover {
             background-color: #6e65f3;
             border-radius: 6px;
             max-width: 100%;
         }
 
-    .optionButtons {
-        background-color: #081b29;
-        border: 1px solid green; /* Green border */
-        color: white; /* White text */
-        cursor: pointer; /* Pointer/hand icon */
-        /*float: left;*/ /* Float the buttons side by side */
+    .userPanel {
+        color: white;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 241px;
+        background-color: #232428;
+    }
+
+    .btnCreateServer:hover:after
+    {
+        content: "Create a New Server";
+    }
+
+    .btnJoinServer:hover:after 
+    {
+        content: "Join To a New Server";
+    }
+    .srvrinput{
+        width:100px;
+    }
+
+    .serverbutton{
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  padding: 10px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+    }
+    .channelcreatedButton{
+     width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+      padding: 10px;
+      background-color: #3867ff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    .msginput
+    {
+    width: 1265px;
+    height: 50px;    
     }
 </style>
-<header class="topbuttons">
-    <form method="post">
-        <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
-        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
-        <button class="getbacktoChoosingserver" asp-controller="Home" asp-action="GetBackToChoosingServer">Change Server</button>
-    </form>
-</header>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<body>
+    <div class="userPanel">
+        <p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username</p>
+    </div>
+    <header class="topbuttons">
+        <form method="post">
+            <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
+            <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
+        </form>
+    </header>
 
-@*set the messages*@
 <form method="post">
-
+            <input style="border:thick solid black" name="newserverInput" type="text" class="srvrinput" />
+            <button type="submit" class="btnJoinServer" value="newserverInput" asp-controller="Home" asp-action="JoinServer">@*Join a New Server*@<i class='bx bx-plus-circle'></i></button>
+            <button type="submit" class="btnCreateServer" value="newserverInput" asp-controller="Home" asp-action="CreateNewServer"><i class='bx bx-message-square-add'></i></button>
+            </form>
+<div class="serverdiv" id="serverdiv">
+    
+</div>
+ <div id="channelDiv" class="channelDiv"></div>
+       
     <div class="ChatDiv" id="ChatDiv">
     </div>
-</form>
-@*send message*@
-<form method="post">
-    <input style="border:thick solid black" value="" name="messageInput" type="text" class="msginput" id="msgInput"/>
-    <button type="submit" class="btnSend" value="messageInput" @*asp-controller="Home" asp-action="SendMessage"*@><i class='bx bxs-send'></i></button>
-</form>
+    <form method="post">
+        <input style="border:thick solid black" value="" name="messageInput" type="text" class="msginput" id="msgInput" />
+        @* <button type="submit" class="btnSend" value="messageInput" $1$asp-controller="Home" asp-action="SendMessage"#1#><i class='bx bxs-send'></i></button> *@
+    </form>
+</body>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-function retrieveJsonList() 
-        {
-            $.ajax({
-                url: '@Url.Action("ReloadChatScreen", "Home")',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    $('#ChatDiv').empty();
-                    
-                    data.forEach(function (item) {
-                        var idPara = document.createElement("h6");
-                                                            idPara.classList.add('idBox');
-                        var serverPara = document.createElement("h6");
-                        serverPara.classList.add('serverBox');
+    function getDataAndCreateButtons() {
+        fetch('/Home/GetAllServers')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('serverdiv');
 
-                        var channelPara = document.createElement("p");
-                        channelPara.classList.add('channelBox')
+                data.forEach(serverButton => {
+                    const button = document.createElement('button');
 
-                        var timePara = document.createElement("p");
-                        timePara.classList.add('timeBox')
+                    button.classList.add('serverbutton');
+                    button.textContent = serverButton;
+                    container.appendChild(button);
 
-                        var senderPara = document.createElement("p");
-                        senderPara.classList.add('senderBox');
+                    button.addEventListener('click', function () {
+                        $('#channelDiv').empty();
+                        console.log(serverButton);
+                        var formData = new FormData();
+                        formData.append('serverButton', serverButton);
 
-                        var messagePara = document.createElement("p");
-                        messagePara.classList.add('messageBox');
+                        fetch('/Home/GetAllChannelsByJs', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                const channelContainer = document.getElementById('channelDiv');
 
-                        serverPara.textContent = item.server;
-                        channelPara.textContent = item.channel;
-                        timePara.textContent = item.senderTime;
-                        senderPara.textContent = item.senderName;
-                        messagePara.textContent = item.message1;
-                        idPara.textContent=item.id;
-                        //$('#ChatDiv').append(serverPara);
-                        //$('#ChatDiv').append(channelPara);
-                        $('#ChatDiv').append(messagePara);
-                        $('#ChatDiv').append(senderPara);
-                        $('#ChatDiv').append(idPara);
-                        $('#ChatDiv').append(timePara);
-                        //$('#ChatDiv').css('background-color', '#36393F');
-                        idPara.style.color="#777dda";
-                        timePara.style.color="gray";
-                        messagePara.style.color="white";
-                        senderPara.style.color="#D3D3D3";
-                        //try to design them maybe?
+                                data.forEach(channelButton => {
+                                    const channelcreatedButton = document.createElement('button');
+                                    channelcreatedButton.classList.add('channelcreatedButton');
+                                    channelcreatedButton.textContent = channelButton;
+                                    channelContainer.appendChild(channelcreatedButton);
+
+                                    channelcreatedButton.addEventListener('click', function () {
+                                        var channelFormData = new FormData();
+                                        channelFormData.append('serverButton', serverButton);
+                                        channelFormData.append('channelButton', channelButton);
+
+                                        fetch('/Home/ReturnChatScreen', {
+                                            method: 'POST',
+                                            body: channelFormData
+                                        })
+                                            .then(response => {
+                                                if (response.ok) {
+                                                    console.log('Successful');
+                                                    //window.location.href = 'https://localhost:7232/Home/ReturnChatScreen'; // Redirect to ChatMainScreen view
+                                                    retrieveJsonList();
+                                                } else {
+                                                    console.error('Request failed:', response.statusText);
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                            });
+                                    });
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
                     });
-                },
-                error: function (xhr, status, error) {
-                    console.error(error);
-                }
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
+    }
+
+    function retrieveJsonList() {
+        $.ajax({
+            url: '@Url.Action("ReloadChatScreen", "Home")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $('#ChatDiv').empty();
+
+                data.forEach(function (item) {
+                    var idPara = document.createElement("h6");
+                    idPara.classList.add('idBox');
+                    var serverPara = document.createElement("h6");
+                    serverPara.classList.add('serverBox');
+
+                    var channelPara = document.createElement("p");
+                    channelPara.classList.add('channelBox')
+
+                    var timePara = document.createElement("p");
+                    timePara.classList.add('timeBox')
+
+                    var senderPara = document.createElement("p");
+                    senderPara.classList.add('senderBox');
+
+                    var messagePara = document.createElement("p");
+                    messagePara.classList.add('messageBox');
+
+                    serverPara.textContent = item.server;
+                    channelPara.textContent = item.channel;
+                    timePara.textContent = item.senderTime;
+                    senderPara.textContent = item.senderName;
+                    messagePara.textContent = item.message1;
+                    idPara.textContent = item.id;
+                    //$('#ChatDiv').append(serverPara);
+                    //$('#ChatDiv').append(channelPara);
+                    $('#ChatDiv').append(messagePara);
+                    $('#ChatDiv').append(senderPara);
+                    $('#ChatDiv').append(idPara);
+                    $('#ChatDiv').append(timePara);
+                    //$('#ChatDiv').css('background-color', '#36393F');
+                    idPara.style.color = "#777dda";
+                    timePara.style.color = "gray";
+                    messagePara.style.color = "white";
+                    senderPara.style.color = "#D3D3D3";
+                    //try to design them maybe?
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+    $(document).ready(function () {
+        if (AppMain.User.Server !== null && AppMain.Servers.Channels !== null) 
+        {
+            retrieveJsonList();
+            setInterval(retrieveJsonList, 1000);
         }
-    $(document).ready(function () 
-    {
-        retrieveJsonList();
-        setInterval(retrieveJsonList, 1000);
+        
     });
     document.getElementById('msgInput').addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevent the default form submission
 
             var messageInput = document.getElementById('msgInput').value;
-             if (messageInput!==''||messageInput!=null||messageInput!=="")
-                        {
-            var formData = new FormData();
-            formData.append('messageInput', messageInput);
+            if (messageInput !== '' || messageInput != null || messageInput !== "") {
+                var formData = new FormData();
+                formData.append('messageInput', messageInput);
 
+                var xhr = new XMLHttpRequest();
+
+                xhr.open('POST', '/Home/SendMessage', true);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        // Request was successful
+                        console.log(xhr.responseText);
+                        retrieveJsonList();
+                        document.getElementById('msgInput').value = '';
+                    } else {
+                        // Request failed
+                        console.error(xhr.statusText);
+                    }
+                };
+                xhr.onerror = function () {
+                    console.error('Error occurred while sending the request.');
+                };
+                xhr.send(formData);
+            }
+            else {
+                return void 0;
+            }
+        }
+    });
+    document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        var targetElement = event.target;
+
+        if (targetElement.classList.contains('idBox')) {
+            event.preventDefault(); // Prevent the default context menu from appearing
+
+            // Create a new table element
+            var table = document.createElement('table');
+            table.classList.add('popupTable'); // Add a class to the table for styling purposes
+
+            // Set the table's position to be absolute
+            table.style.position = 'absolute';
+
+            // Set the table's top and left positions based on the mouse coordinates
+            table.style.top = event.clientY + 'px';
+            table.style.left = event.clientX + 'px';
+
+            // Create rows and cells
+
+            var row = document.createElement('tr');
+            var cell = document.createElement('button');
+            cell.textContent = 'Delete Message';
+            row.appendChild(cell);
+            table.appendChild(row);
+
+            // Append the table to the document body
+            document.body.appendChild(table);
+
+            // Add a mouseleave event listener to the table
+            table.addEventListener('mouseleave', function () {
+                // Remove the table from the document body when the mouse leaves it
+                document.body.removeChild(table);
+            });
+        }
+        // Add onclick event listener to the cell
+        cell.addEventListener('click', function (event) {
+            event.preventDefault();
+            var messageToDelete = targetElement.textContent;
+            var formData = new FormData();
+            formData.append('messageToDelete', messageToDelete);
             var xhr = new XMLHttpRequest();
-           
-            xhr.open('POST', '/Home/SendMessage', true);
-            xhr.onload = function () 
-            {
-                if (xhr.status === 200) 
-                {
+            xhr.open('POST', '/Home/DeleteMessage', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
                     // Request was successful
                     console.log(xhr.responseText);
                     retrieveJsonList();
-                    document.getElementById('msgInput').value='';                    
                 } else {
                     // Request failed
                     console.error(xhr.statusText);
@@ -234,75 +425,7 @@ function retrieveJsonList()
                 console.error('Error occurred while sending the request.');
             };
             xhr.send(formData);
-            }
-            else
-            {
-                return void 0;
-            }
-        }
-    });
-    document.addEventListener('contextmenu', function(event) {
-        event.preventDefault();
-      var targetElement = event.target;
-    
-      if (targetElement.classList.contains('idBox')) {
-        event.preventDefault(); // Prevent the default context menu from appearing
-    
-        // Create a new table element
-        var table = document.createElement('table');
-        table.classList.add('popupTable'); // Add a class to the table for styling purposes
-    
-        // Set the table's position to be absolute
-        table.style.position = 'absolute';
-    
-        // Set the table's top and left positions based on the mouse coordinates
-        table.style.top = event.clientY + 'px';
-        table.style.left = event.clientX + 'px';
-    
-        // Create rows and cells
-        
-          var row = document.createElement('tr');
-            var cell = document.createElement('button');
-            cell.textContent = 'Delete Message';
-            row.appendChild(cell);
-          table.appendChild(row);
-    
-        // Append the table to the document body
-        document.body.appendChild(table);
-    
-        // Add a mouseleave event listener to the table
-        table.addEventListener('mouseleave', function() {
-          // Remove the table from the document body when the mouse leaves it
-          document.body.removeChild(table);
         });
-      }
-      // Add onclick event listener to the cell
-          cell.addEventListener('click', function(event) 
-          {
-              event.preventDefault();
-           var messageToDelete=targetElement.textContent;
-           var formData = new FormData();
-           formData.append('messageToDelete', messageToDelete);
-           var xhr = new XMLHttpRequest();
-           xhr.open('POST', '/Home/DeleteMessage', true);
-           xhr.onload = function () 
-           {
-               if (xhr.status === 200) 
-               {
-                   // Request was successful
-                   console.log(xhr.responseText);
-                   retrieveJsonList();
-               } else {
-                   // Request failed
-                   console.error(xhr.statusText);
-               }
-           };
-           xhr.onerror = function () {
-               console.error('Error occurred while sending the request.');
-           };
-           xhr.send(formData);
-           });
     });
-    
+    getDataAndCreateButtons();
 </script>
-

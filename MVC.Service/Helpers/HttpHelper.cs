@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MVC.Service.Service
+namespace MVC.Service.Helpers
 {
     public class HttpHelper
     {

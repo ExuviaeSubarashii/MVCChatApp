@@ -1,4 +1,5 @@
 using MVC.Domain.Models;
+
 namespace MVCChatApp
 {
     public class Program

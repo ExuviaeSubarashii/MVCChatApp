@@ -21,7 +21,6 @@ namespace MVCChatApp.Controllers
             _logger = logger;
             _CP = CP;
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(User user)
@@ -33,11 +32,11 @@ namespace MVCChatApp.Controllers
 
             var checkUserExists = _CP.Users.Any(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
             var isthistheuser=_CP.Users.Where(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd()).FirstOrDefault();
-            if (checkUserExists)
+            if (isthistheuser.Password.Trim().ConvertStringToMD5()==isthistheuser.HasPassword.Trim())
             {
                 AppMain.User = new User { Username = isthistheuser.Username , EMail = user.EMail};
-                var checkserverQuery = _CP.Users.Where(x => x.EMail.Trim() == AppMain.User.EMail).ToList();
-                return View("ChooseServer", checkserverQuery.ToList());
+                //var checkserverQuery = _CP.Users.Where(x => x.EMail.Trim() == AppMain.User.EMail).ToList();
+                return View("ChatMainScreen");
             }
             else
             {
@@ -91,7 +90,6 @@ namespace MVCChatApp.Controllers
             AppMain.User.Server = serverButton.Trim();
             return View("ChooseChannel",query);
         }
-        
         [HttpPost]
         public async Task<IActionResult> GetAllChannelsByJs(string serverButton)
         {
@@ -120,8 +118,12 @@ namespace MVCChatApp.Controllers
         [HttpGet]
         public async Task<ActionResult> ReloadChatScreen()
         {
-            var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-            return Json(query);
+            if (!string.IsNullOrEmpty(AppMain.User.Server)&&!string.IsNullOrEmpty(AppMain.Servers.Channels))
+            {
+                var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+                return Json(query);
+            }
+            return Ok();
         }
         [HttpPost]
         public async Task<ActionResult> SendMessage(string messageInput)
@@ -169,14 +171,14 @@ namespace MVCChatApp.Controllers
             var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
             if (checkifserverExists)
             {
-                return View("ChooseServer", loadthisifitfails);
+                return View("ChatMainScreen", loadthisifitfails);
             }
             theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
             _CP.Servers.Add(servers1);
             _CP.SaveChanges();
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             await Task.Delay(1000);
-            return View("ChooseServer", query3.ToList());
+            return View("ChatMainScreen", query3.ToList());
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -189,7 +191,7 @@ namespace MVCChatApp.Controllers
             var checkifUServerExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == newserverInput.TrimEnd());
             var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
             var checkIfUserIsAlreadyInThisServer = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Server.Contains(newserverInput.Trim()));
-            if (checkifUServerExists==false)
+            if (checkifUServerExists)
             {
                 if (checkIfUserIsAlreadyInThisServer==false)
                 {
@@ -204,12 +206,12 @@ namespace MVCChatApp.Controllers
             }
             else
             {
-                return View("ChooseServer", returnthisWhenServerDoesNotExist);
+                return View("ChatMainScreen", returnthisWhenServerDoesNotExist);
             }
             
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             await Task.Delay(1000);
-            return View("ChooseServer", query3.ToList());
+            return View("ChatMainScreen", query3.ToList());
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -250,9 +252,7 @@ namespace MVCChatApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> GetBackToChoosingServer()
         {
-            var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            //await Task.Delay(1000);
-            return View("ChooseServer", checkserverQuery.ToList());
+            return View("ChatMainScreen");
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -260,6 +260,14 @@ namespace MVCChatApp.Controllers
         {
             AppMain.User.Username = "";
             return View("Index");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route($"/Home")]
+        public async Task<ActionResult> Home()
+        {
+            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            return View("AddNewFriend", query3);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -277,8 +285,7 @@ namespace MVCChatApp.Controllers
                 }
                 else
                 {
-                    //await Task.Delay(1000);
-                    var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();                    
+                    var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();              
                     return View("AddNewFriend",query);
                 }
                 _CP.SaveChanges();
@@ -286,14 +293,6 @@ namespace MVCChatApp.Controllers
 
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             await Task.Delay(1000);
-            return View("AddNewFriend", query3);
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route($"/Home")]
-        public async Task<ActionResult> Home()
-        {
-            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             return View("AddNewFriend", query3);
         }
         [HttpPost]
@@ -409,7 +408,6 @@ namespace MVCChatApp.Controllers
             //await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> FriendChatPanel(string friendName)
@@ -426,11 +424,8 @@ namespace MVCChatApp.Controllers
                             (x.ReceiverName == currentUser && x.SenderName == receiverName))
                 .OrderByDescending(x => x.Id)
                 .ToList();
-
-            //await Task.Delay(1000);
             return View("FriendChatPanel");
         }
-        
         [HttpPost]
         public async Task<ActionResult> SendDirectMessage(string messageInput)
         {
@@ -460,7 +455,6 @@ namespace MVCChatApp.Controllers
             await Task.Delay(100);
             return new JsonResult(directMessagesAfterSending);
         }
-
         private List<DirectMessages> GetDirectMessages(string senderName, string receiverName)
         {
             return _CP.DirectMessages
@@ -556,7 +550,6 @@ namespace MVCChatApp.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
         [HttpPost]
         public IActionResult serverwithjstestpage()
         {
