@@ -234,7 +234,7 @@ overflow: auto;
                             .then(response => response.json())
                             .then(data => {
                                 const channelContainer = document.getElementById('channelDiv');
-
+                                
                                 data.forEach(channelButton => {
                                     const channelcreatedButton = document.createElement('button');
                                     channelcreatedButton.classList.add('channelcreatedButton');
@@ -253,7 +253,6 @@ overflow: auto;
                                             .then(response => {
                                                 if (response.ok) {
                                                     console.log('Successful');
-                                                    //window.location.href = 'https://localhost:7232/Home/ReturnChatScreen'; // Redirect to ChatMainScreen view
                                                     retrieveJsonList();
                                                 } else {
                                                     console.error('Request failed:', response.statusText);
@@ -328,11 +327,10 @@ overflow: auto;
         });
     }
     $(document).ready(function () {
-        if (AppMain.User.Server !== null && AppMain.Servers.Channels !== null) 
-        {
+        
             retrieveJsonList();
             setInterval(retrieveJsonList, 1000);
-        }
+        
         
     });
     document.getElementById('msgInput').addEventListener('keypress', function (event) {
@@ -368,7 +366,8 @@ overflow: auto;
             }
         }
     });
-    document.addEventListener('contextmenu', function (event) {
+    document.addEventListener('contextmenu', function (event) 
+    {
         event.preventDefault();
         var targetElement = event.target;
 
@@ -427,5 +426,66 @@ overflow: auto;
             xhr.send(formData);
         });
     });
+    document.addEventListener('contextmenu', function (event) 
+        {
+            event.preventDefault();
+            var targetElement = event.target;
+    
+            if (targetElement.classList.contains('serverbutton')) {
+                event.preventDefault(); // Prevent the default context menu from appearing
+    
+                // Create a new table element
+                var table = document.createElement('table');
+                table.classList.add('popupTable'); // Add a class to the table for styling purposes
+    
+                // Set the table's position to be absolute
+                table.style.position = 'absolute';
+    
+                // Set the table's top and left positions based on the mouse coordinates
+                table.style.top = event.clientY + 'px';
+                table.style.left = event.clientX + 'px';
+    
+                // Create rows and cells
+    
+                var row = document.createElement('tr');
+                var cell = document.createElement('button');
+                cell.textContent = 'Leave Server';
+                row.appendChild(cell);
+                table.appendChild(row);
+    
+                // Append the table to the document body
+                document.body.appendChild(table);
+    
+                // Add a mouseleave event listener to the table
+                table.addEventListener('mouseleave', function () {
+                    // Remove the table from the document body when the mouse leaves it
+                    document.body.removeChild(table);
+                });
+            }
+            // Add onclick event listener to the cell
+            cell.addEventListener('click', function (event) {
+                event.preventDefault();
+                var serverName = targetElement.textContent;
+                var formData = new FormData();
+                formData.append('serverName', serverName);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/Home/LeaveServer', true);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        // Request was successful
+                        console.log(xhr.responseText);
+                        $('#serverdiv').empty();
+                        getDataAndCreateButtons();
+                    } else {
+                        // Request failed
+                        console.error(xhr.statusText);
+                    }
+                };
+                xhr.onerror = function () {
+                    console.error('Error occurred while sending the request.');
+                };
+                xhr.send(formData);
+            });
+        });
     getDataAndCreateButtons();
 </script>

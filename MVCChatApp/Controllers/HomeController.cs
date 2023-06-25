@@ -185,33 +185,63 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> JoinServer(string newserverInput)
         {
             //first checks if the servers exists, if turns true it will add to the database if it does not exists it will return back to ChooseServer page.
+            // string[] sww = null;
+            // //var checkifUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd());
+            // var returnthisWhenServerDoesNotExist = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            // var checkifUServerExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == newserverInput.TrimEnd());
+            // var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
+            // var theServerwillAddToServerTable = _CP.Servers.Where(x => x.ServerName == newserverInput).FirstOrDefault();
+            // var checkIfUserIsAlreadyInThisServer = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Server.Contains(newserverInput.Trim()));
+            // if (checkifUServerExists)
+            // {
+            //     if (checkIfUserIsAlreadyInThisServer==false)
+            //     {
+            //         theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+            //         theServerwillAddToServerTable.Usernames =
+            //             theServerwillAddToServerTable.Usernames.Trim() + "," + AppMain.User.Username.Trim()+",";
+            //         var log = new LoggerConfiguration()
+            //         .WriteTo.File($"ServerLogs/{newserverInput} Logs.txt")
+            //         .CreateLogger();
+            //         log.Information($"User {AppMain.User.Username} Joined at {DateTime.Now}.");
+            //         log.Information("------------------------------------------------------------");
+            //         _CP.SaveChanges();
+            //     }
+            // }
+            // else
+            // {
+            //     return View("ChatMainScreen", returnthisWhenServerDoesNotExist);
+            // }
+            
+            // var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            // await Task.Delay(1000);
+            // return View("ChatMainScreen", query3.ToList());
             string[] sww = null;
-            //var checkifUserExists = _CP.Users.Any(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd());
-            var returnthisWhenServerDoesNotExist = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            var checkifUServerExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == newserverInput.TrimEnd());
-            var theserverwilladd = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
-            var checkIfUserIsAlreadyInThisServer = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Server.Contains(newserverInput.Trim()));
-            if (checkifUServerExists)
+
+            var username = AppMain.User.Username.Trim();
+
+            var existingUser = _CP.Users.FirstOrDefault(x => x.Username.Trim() == username);
+            var serverExists = _CP.Servers.Any(x => x.ServerName.TrimEnd() == newserverInput.TrimEnd());
+            var serverToAdd = _CP.Servers.FirstOrDefault(x => x.ServerName == newserverInput);
+            var userAlreadyInServer = _CP.Users.Any(x => x.Username.Trim() == username && x.Server.Contains(newserverInput.Trim()));
+
+            if (serverExists)
             {
-                if (checkIfUserIsAlreadyInThisServer==false)
+                if (!userAlreadyInServer)
                 {
-                    theserverwilladd.Server = theserverwilladd.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
-                    var log = new LoggerConfiguration()
-                    .WriteTo.File($"ServerLogs/{newserverInput} Logs.txt")
-                    .CreateLogger();
-                    log.Information($"User {AppMain.User.Username} Joined at {DateTime.Now}.");
+                    existingUser.Server = existingUser.Server.TrimEnd() + ", " + newserverInput.TrimEnd();
+                    serverToAdd.Usernames = serverToAdd.Usernames.Trim() + "," + username + ",";
+        
+                    // Logging
+                    var log = new LoggerConfiguration()                                             
+                        .WriteTo.File($"ServerLogs/{newserverInput} Logs.txt")                          
+                        .CreateLogger();                                                                
+                    log.Information($"User {AppMain.User.Username} Joined at {DateTime.Now}.");     
                     log.Information("------------------------------------------------------------");
+        
                     _CP.SaveChanges();
                 }
             }
-            else
-            {
-                return View("ChatMainScreen", returnthisWhenServerDoesNotExist);
-            }
-            
-            var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
-            await Task.Delay(1000);
-            return View("ChatMainScreen", query3.ToList());
+            return View("ChatMainScreen", _CP.Users.Where(x => x.Username.Trim() == username).ToList());
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -554,6 +584,62 @@ namespace MVCChatApp.Controllers
         public IActionResult serverwithjstestpage()
         {
             return View("ServerWithJsTest");
+        }
+        
+        public async Task<ActionResult> GetAllServersByJs()
+        {
+            var checkserverQuery = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            string[] serverArray=null;
+            foreach (var item in checkserverQuery)
+            {
+                serverArray = item.Server.Split(',');
+            }
+            return Json(serverArray);
+        }
+        [HttpPost]
+        public async Task<ActionResult> LeaveServer(string serverName)
+        {
+            if (!string.IsNullOrWhiteSpace(serverName))
+            {
+                #region MyRegion
+                // string[] currentServerList = null;
+                //
+                // List<string> sw = new List<string>();
+                //
+                // var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).FirstOrDefault();
+                // var query2 = _CP.Users.Where(x => x.Username == AppMain.User.Username).ToList();
+                //
+                // foreach (var item in query2)
+                // {
+                //     currentServerList = item.Server.Split(',');
+                // }
+                // List<String> list = currentServerList.ToList();
+                // list.Remove(serverName);
+                // string[] columns = list.ToArray();
+                // var newServerList = string.Join(",", columns);
+                // query.Server = newServerList;
+                // _CP.SaveChanges();
+                // return Ok();
+                #endregion
+                var userServerquery = _CP.Users.FirstOrDefault(x => x.Username.Trim() == AppMain.User.Username);
+                var serverQuery = _CP.Servers.FirstOrDefault(x => x.ServerName == serverName.Trim());
+                if (userServerquery != null)
+                { 
+                    //delete from User Table > Server
+                    var currentUserServerList = userServerquery.Server.Split(',').ToList();
+                    currentUserServerList.Remove(serverName);
+                    userServerquery.Server = string.Join(",", currentUserServerList);
+                    // _CP.SaveChanges();
+                    //delete from Server Table > UserName
+                    var currentServerList = serverQuery.Usernames.Split(',').ToList();
+                    currentServerList.Remove(AppMain.User.Username.TrimEnd());
+                    serverQuery.Usernames = string.Join(",", currentServerList);
+                    _CP.SaveChanges();
+                    return Ok();
+                }
+               
+            }
+            return Json(GetAllServersByJs());
         }
     }
 }
