@@ -79,7 +79,6 @@
     const userPasswordInput=document.getElementById('userPasswordInput');
     userPasswordInput.addEventListener('input', checkInputs);
     const loginButton=document.getElementById('loginBtn');
-
 function checkInputs() {
   // Check if both input boxes are empty
   if (EmailInput.value === '' || userPasswordInput.value === '') {
@@ -88,7 +87,6 @@ function checkInputs() {
     loginButton.disabled = false; // Enable the button
   }
 }
-
 checkInputs();
 
 </script>

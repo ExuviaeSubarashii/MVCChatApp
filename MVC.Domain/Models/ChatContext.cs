@@ -129,6 +129,12 @@ namespace MVC.Domain.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .IsFixedLength();
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(4)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+                entity.Property(e => e.CreationDate)
+                    .HasColumnType("datetime");
             });
             modelBuilder.Entity<DirectMessages>(entity =>
             {

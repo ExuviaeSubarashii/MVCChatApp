@@ -15,5 +15,7 @@ namespace MVC.Domain.Models
         public string? FriendRequests { get; set; }
         public string? BlockedUsers { get; set; }
         public string? EMail { get; set; }
+        public string? UserId { get; set; }
+        public DateTime? CreationDate { get; set; }
     }
 }

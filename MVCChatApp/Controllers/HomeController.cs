@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MVC.Domain.Models;
 using MVC.Domain.SupClass;
 using MVC.Service.Extension;
-using MVCChatApp.Models;
 using Serilog;
-using System.Diagnostics;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MVCChatApp.Controllers
 {
@@ -30,12 +24,11 @@ namespace MVCChatApp.Controllers
                 return View("Index");
             }
 
-            var checkUserExists = _CP.Users.Any(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
+            //var checkUserExists = _CP.Users.Any(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
             var isthistheuser=_CP.Users.Where(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd()).FirstOrDefault();
-            if (isthistheuser.Password.Trim().ConvertStringToMD5()==isthistheuser.HasPassword.Trim())
+            if (isthistheuser != null && isthistheuser.Password.Trim().ConvertStringToMD5() == isthistheuser.HasPassword.Trim())
             {
-                AppMain.User = new User { Username = isthistheuser.Username , EMail = user.EMail};
-                //var checkserverQuery = _CP.Users.Where(x => x.EMail.Trim() == AppMain.User.EMail).ToList();
+                AppMain.User = new User { Username = isthistheuser.Username, EMail = user.EMail, UserId = isthistheuser.UserId };
                 return View("ChatMainScreen");
             }
             else
@@ -45,7 +38,7 @@ namespace MVCChatApp.Controllers
                     .CreateLogger();
                 log.Information($"User {user.Username} Failed Login.");
                 log.Information("------------------------------------------------------------");
-                return NotFound();
+                return View("Index");
             }
         }
         [HttpPost]
@@ -53,22 +46,23 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> RegisterAccount(User user)
         {
             var query = _CP.Users.Where(x => x.EMail == user.EMail).Any();
+            Random randomId = new Random();
+            int userNumberId = randomId.Next(1000, 10000);
+            
             User newUser = new User()
             {
                 Username = user.Username,
+                UserId = userNumberId.ToString(),
                 Password = user.Password,
                 EMail = user.EMail,
                 HasPassword = user.Password.ConvertStringToMD5(),
                 Image = null,
-                Server = "Main"
+                Server = "Main",
+                CreationDate = DateTime.Now
             };
             if (query == true)
             {
                 return View("RegisterPage");
-            }
-            else if (user.Username == null || user.Username == "" || string.IsNullOrEmpty(user.Username))
-            {
-                return StatusCode(406);
             }
             else
             {
@@ -132,7 +126,7 @@ namespace MVCChatApp.Controllers
             Message newmsg = new Message()
             {
                 Message1 = messageInput,
-                SenderName = AppMain.User.Username,
+                SenderName = AppMain.User.Username.Trim()+"#"+AppMain.User.UserId.Trim(),
                 SenderTime = DateTime.UtcNow,
                 Server = AppMain.User.Server,
                 Channel = AppMain.Servers.Channels,
@@ -534,12 +528,19 @@ namespace MVCChatApp.Controllers
         {
             
             var deleteMessageQuery = _CP.Messages.Where(x => x.Id == messageToDelete).FirstOrDefault();
-            if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username.Trim())
+            var userDetails = deleteMessageQuery.SenderName.Split("#");
+            var userName = userDetails[0];
+            var userId = userDetails[1];
+            if (AppMain.User.Username.Trim()==userName.Trim() && AppMain.User.UserId.Trim()==userId.Trim())
             {
                 _CP.Messages.Remove(deleteMessageQuery);
                 _CP.SaveChanges();
                 return Ok();
             }
+            // if (deleteMessageQuery.SenderName.Trim()==AppMain.User.Username.Trim())
+            //{
+                
+            //}
             else
             {
                 return Ok();
@@ -578,7 +579,8 @@ namespace MVCChatApp.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            //return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("Index");
         }
         [HttpPost]
         public IActionResult serverwithjstestpage()
@@ -640,6 +642,17 @@ namespace MVCChatApp.Controllers
                
             }
             return Json(GetAllServersByJs());
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ProfileDetailsRequest(string userDetails)
+        {
+            var userInfoArray = userDetails.Split("#");
+            var userName = userInfoArray[0];
+            var userId = userInfoArray[1];
+            var userProfile = _CP.Users.Where(x => x.Username == userName.Trim() && x.UserId == userId.Trim()).FirstOrDefault();
+
+            return Json(userProfile);
         }
     }
 }
