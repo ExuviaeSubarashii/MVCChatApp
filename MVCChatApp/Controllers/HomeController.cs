@@ -24,11 +24,16 @@ namespace MVCChatApp.Controllers
                 return View("Index");
             }
 
-            //var checkUserExists = _CP.Users.Any(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd());
             var isthistheuser=_CP.Users.Where(x => x.EMail.TrimEnd() == user.EMail.TrimEnd() && x.Password.TrimEnd() == user.Password.TrimEnd()).FirstOrDefault();
             if (isthistheuser != null && isthistheuser.Password.Trim().ConvertStringToMD5() == isthistheuser.HasPassword.Trim())
             {
-                AppMain.User = new User { Username = isthistheuser.Username, EMail = user.EMail, UserId = isthistheuser.UserId };
+                AppMain.User = new User 
+                { 
+                    Username = isthistheuser.Username,
+                    EMail = user.EMail, 
+                    UserId = isthistheuser.UserId, 
+                    StatusMessage=isthistheuser.StatusMessage 
+                };
                 return View("ChatMainScreen");
             }
             else
@@ -48,7 +53,7 @@ namespace MVCChatApp.Controllers
             var query = _CP.Users.Where(x => x.EMail == user.EMail).Any();
             Random randomId = new Random();
             int userNumberId = randomId.Next(1000, 10000);
-            
+
             User newUser = new User()
             {
                 Username = user.Username,
@@ -58,7 +63,8 @@ namespace MVCChatApp.Controllers
                 HasPassword = user.Password.ConvertStringToMD5(),
                 Image = null,
                 Server = "Main",
-                CreationDate = DateTime.Now
+                CreationDate = DateTime.Now,
+                StatusMessage = ""
             };
             if (query == true)
             {
@@ -112,11 +118,20 @@ namespace MVCChatApp.Controllers
         [HttpGet]
         public async Task<ActionResult> ReloadChatScreen()
         {
-            if (!string.IsNullOrEmpty(AppMain.User.Server)&&!string.IsNullOrEmpty(AppMain.Servers.Channels))
+            try
             {
-                var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
-                return Json(query);
+                if (!string.IsNullOrEmpty(AppMain.User.Server) && !string.IsNullOrEmpty(AppMain.Servers.Channels))
+                {
+                    var query = _CP.Messages.Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
+                    return Json(query);
+                }
             }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            
             return Ok();
         }
         [HttpPost]
@@ -294,30 +309,31 @@ namespace MVCChatApp.Controllers
             return View("AddNewFriend", query3);
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<ActionResult> SendFriendRequest(string friendName)
         {
+            var userInfoArray = friendName.Split("#");
+            var userName = userInfoArray[0];
+            var userId = userInfoArray[1];
             if (friendName != null)
             {
-                var checkifUserExists = _CP.Users.Any(x => x.Username.Trim() == friendName.Trim());
-                var checkIfUserIsAlreadySentFriendRequest = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.FriendRequests.Contains(friendName.Trim()));
-                var checkIfUserIsAlreadyFriend = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim() && x.Friends.Contains(friendName.Trim()));
-                var willAddtoFriendList = _CP.Users.Where(x => x.Username.TrimEnd() == friendName.TrimEnd()).FirstOrDefault();
+                var checkifUserExists = _CP.Users.Any(x => x.Username.Trim() == userName.Trim()&&x.UserId.Trim()==userId.Trim());
+                var checkIfUserIsAlreadySentFriendRequest = _CP.Users.Any(x => x.Username.Trim() == userName.Trim()&&x.UserId.Trim()==userId.Trim() && x.FriendRequests.Contains(AppMain.User.Username.Trim()+"#"+AppMain.User.UserId.Trim()));
+                var checkIfUserIsAlreadyFriend = _CP.Users.Any(x => x.Username.Trim() == AppMain.User.Username.Trim()&&x.UserId.Trim()==userId.Trim() && x.Friends.Contains(friendName.Trim()));
+                var willAddtoFriendList = _CP.Users.Where(x => x.Username.TrimEnd() == userName&&x.UserId==userId.Trim()).FirstOrDefault();
                 if (checkifUserExists && !checkIfUserIsAlreadyFriend && !checkIfUserIsAlreadySentFriendRequest && friendName != null)
                 {
-                    willAddtoFriendList.FriendRequests = willAddtoFriendList.FriendRequests.Trim() + "," + AppMain.User.Username.Trim();
+                    willAddtoFriendList.FriendRequests = willAddtoFriendList.FriendRequests.Trim() + "," + AppMain.User.Username.Trim()+"#"+AppMain.User.UserId;
                 }
                 else
                 {
-                    var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();              
-                    return View("AddNewFriend",query);
+                    var query = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
                 }
                 _CP.SaveChanges();
             }
 
             var query3 = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
             await Task.Delay(1000);
-            return View("AddNewFriend", query3);
+            return View("AddNewFriend",query3);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -325,6 +341,9 @@ namespace MVCChatApp.Controllers
         {
             if (friendName != null)
             {
+                var userInfoArray = friendName.Split("#");
+                var userName = userInfoArray[0];
+                var userId = userInfoArray[1];
                 //kabul edenin tarafinda ekle
                 var willAddtoFriendList = _CP.Users.Where(x => x.Username.TrimEnd() == AppMain.User.Username.TrimEnd()).FirstOrDefault();
                 willAddtoFriendList.Friends = willAddtoFriendList.Friends.Trim() + "," + friendName.Trim();
@@ -347,34 +366,39 @@ namespace MVCChatApp.Controllers
                 _CP.SaveChanges();
 
                 //gonderenin tarafinda ekle
-                var senderwillAddtoFriendList= _CP.Users.Where(x => x.Username.TrimEnd() == friendName.Trim()).FirstOrDefault();
+                var senderwillAddtoFriendList= _CP.Users.Where(x => x.Username.TrimEnd() == userName.Trim()&&x.UserId.Trim()==userId.Trim()).FirstOrDefault();
 
-                senderwillAddtoFriendList.Friends = senderwillAddtoFriendList.Friends.Trim() + "," + AppMain.User.Username.Trim();
+                senderwillAddtoFriendList.Friends = senderwillAddtoFriendList.Friends.Trim() + "," + AppMain.User.Username.Trim()+"#"+AppMain.User.UserId.Trim();
 
                 _CP.SaveChanges();
                 //remove the friendrequest from the database by sender side
                 string[] senderacceptedfriendRequest = null;
                 List<string> sw2 = new List<string>();
 
-                var query3 = _CP.Users.Where(x => x.Username.Trim() == friendName.Trim()).FirstOrDefault();
-                var query4 = _CP.Users.Where(x => x.Username == friendName.Trim()).ToList();
-
-                foreach (var item in query4)
+                var query3 = _CP.Users.Where(x => x.Username.TrimEnd() == userName.Trim()&&x.UserId.Trim()==userId.Trim()).FirstOrDefault();
+                var query4 = _CP.Users.Where(x =>x.Username.TrimEnd() == userName.Trim()&& x.UserId.Trim()==userId.Trim()).ToList();
+                if (query3.FriendRequests!=null)
                 {
-                    senderacceptedfriendRequest = item.FriendRequests.Split(',');
+                    foreach (var item in query4)
+                    {
+                    
+                        senderacceptedfriendRequest = item.FriendRequests.Split(',');
+                    
+                    }
+
+                    List<String> senderlist = senderacceptedfriendRequest.ToList();
+                    list.Remove(AppMain.User.Username.Trim()+"#"+AppMain.User.UserId.Trim());
+
+                    string[] sendercolumns = list.ToArray();
+                    var sendernewfriendList = string.Join(",", sendercolumns);
+                    query3.FriendRequests = sendernewfriendList;
+                    _CP.SaveChanges();
                 }
-
-                List<String> senderlist = senderacceptedfriendRequest.ToList();
-                list.Remove(AppMain.User.Username);
-
-                string[] sendercolumns = list.ToArray();
-                var sendernewfriendList = string.Join(",", sendercolumns);
-                query3.FriendRequests = sendernewfriendList;
-                _CP.SaveChanges();
             }
-            var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username).ToList();
+            var refreshFriendPage = _CP.Users.Where(x => x.Username.Trim() == AppMain.User.Username&&x.UserId==AppMain.User.UserId.Trim()).ToList();
                 //await Task.Delay(1000);
             return View("AddNewFriend", refreshFriendPage);
+            
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -654,5 +678,11 @@ namespace MVCChatApp.Controllers
 
             return Json(userProfile);
         }
+        //[HttpPost]
+        //public async Task<ActionResult> ChangeStatusMessage(string newStatusMessage,string userDetails)
+        //{ 
+
+        //}
+
     }
 }

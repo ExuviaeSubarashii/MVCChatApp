@@ -129,6 +129,10 @@ namespace MVC.Domain.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .IsFixedLength();
+                entity.Property(e => e.StatusMessage)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .IsFixedLength();
                 entity.Property(e => e.UserId)
                     .HasMaxLength(4)
                     .IsUnicode(false)

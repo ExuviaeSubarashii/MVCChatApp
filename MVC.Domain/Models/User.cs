@@ -17,5 +17,6 @@ namespace MVC.Domain.Models
         public string? EMail { get; set; }
         public string? UserId { get; set; }
         public DateTime? CreationDate { get; set; }
+        public string? StatusMessage { get; set; }
     }
 }

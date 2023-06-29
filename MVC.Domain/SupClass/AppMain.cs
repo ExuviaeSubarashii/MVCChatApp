@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MVC.Domain.SupClass
 {
-    public class AppMain
+    public static class AppMain
     {
         public static User User { get; set; } = null;
         public static Message Message { get; set; } = null;

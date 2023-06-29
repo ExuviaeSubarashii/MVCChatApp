@@ -100,7 +100,7 @@ overflow: auto;
         color: lightgray;
         font-weight: bold;
         position: relative;
-        left: -600px;
+        left: -580px;
     }
 
     .idBox {
@@ -196,6 +196,10 @@ overflow: auto;
     #closePopup {
       margin-top: 10px;
     }
+    #profilePopup{
+    background-color: black;
+    color: white;
+    }
 </style>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <body>
@@ -227,13 +231,13 @@ overflow: auto;
 </form>
 
 <div id="profilePopup">
-    <h1 id="popupUsername"></h1>
+        <h1 id="popupUsername"></h1>
   <p id="popupStatus"></p>
   <div id="popupUserInformation">
-    @* <p><strong>Discord Tag:</strong> <span id="popupDiscordTag"></span></p> *@
-    @* <p><strong>User ID:</strong> <span id="popupUserID"></span></p> *@
-    <p><strong>Account Created:</strong> <span id="popupAccountCreationDate"></span></p>
+      <p><strong>Account Created:</strong> <span id="popupAccountCreationDate"></span></p>
+            <p id="statusMessage"></p>
       <button id="closePopup">Close</button>
+      <button id="sendFriendRequestButton">Send Friend Request</button>
   </div>
   @* <div id="popupServersContainer"> *@
   @*   <h2>Servers</h2> *@
@@ -519,6 +523,8 @@ overflow: auto;
         var popupAccountCreationDate = document.getElementById('popupAccountCreationDate');
         //var popupServersList = document.getElementById('popupServersList');
         var closePopupButton = document.getElementById('closePopup');
+        var popupStatusMessage = document.getElementById('statusMessage');
+
         if (targetElement.classList.contains('senderBox'))
         {
             event.preventDefault();
@@ -556,9 +562,9 @@ overflow: auto;
                    console.log(responseData);
                    profilePopup.style.display='flex';
                     popupUsername.textContent = responseData.username+"#"+responseData.userId;
-                    //popupDiscordTag.textContent = responseData.userId;
                     popupAccountCreationDate.textContent=responseData.creationDate;
-                    console.clear();
+                    popupStatusMessage.textContent=responseData.statusMessage;
+                    //console.clear();
                } 
                else 
                {
@@ -570,6 +576,30 @@ overflow: auto;
            };
            xhr.send(formData);
         });
+    });
+    const sendfriendrequestButton=document.getElementById('sendFriendRequestButton');
+    sendfriendrequestButton.addEventListener('click',function (event)
+    {
+        event.preventDefault();
+        var friendName = document.getElementById('popupUsername').textContent;
+        var formData=new FormData();
+        formData.append('friendName',friendName);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/Home/SendFriendRequest', true);
+        xhr.onload=function (){
+            if (xhr.status===200)
+            {
+                console.log("Successfully Sent");
+            }
+             else 
+             {
+                 console.error(xhr.statusText);
+             }
+             };
+           xhr.onerror = function () {
+               console.error('Error occurred while sending the request.');
+           };
+           xhr.send(formData);
     });
     getDataAndCreateButtons();
 </script>
