@@ -200,49 +200,107 @@ overflow: auto;
     background-color: black;
     color: white;
     }
+    #editprofilePopup {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background-color: #fff;
+          border: 1px solid #ccc;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          z-index: 9999;
+          display: none;
+        }
+        
+        #editprofilePopup img {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+        }
+        #editclosePopup {
+          margin-top: 10px;
+        }
+        #editprofilePopup{
+        background-color: black;
+        color: white;
+        }
 </style>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <body>
-    <div class="userPanel">
-        <p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username#@AppMain.User.UserId</p>
-    </div>
-    <header class="topbuttons">
-        <form method="post">
-            <button class="logoutButton" asp-controller="Home" asp-action="LogOut"><i class='bx bx-log-out'></i></button>
-            <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home"><i class='bx bx-home'></i></button>
-        </form>
-    </header>
+<div class="userPanel">
+    <p id="userNotif" class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username#@AppMain.User.UserId</p>
+</div>
+<header class="topbuttons">
+    <form method="post">
+        <button class="logoutButton" asp-controller="Home" asp-action="LogOut">
+            <i class='bx bx-log-out'></i>
+        </button>
+        <button type="submit" class="HomeButton" asp-controller="Home" asp-action="Home">
+            <i class='bx bx-home'></i>
+        </button>
+    </form>
+</header>
 
 <form method="post">
-            <input style="border:thick solid black" name="newserverInput" type="text" class="srvrinput" />
-            <button type="submit" class="btnJoinServer" value="newserverInput" asp-controller="Home" asp-action="JoinServer">@*Join a New Server*@<i class='bx bx-plus-circle'></i></button>
-            <button type="submit" class="btnCreateServer" value="newserverInput" asp-controller="Home" asp-action="CreateNewServer"><i class='bx bx-message-square-add'></i></button>
-            </form>
+    <input style="border:thick solid black" name="newserverInput" type="text" class="srvrinput"/>
+    <button type="submit" class="btnJoinServer" value="newserverInput" asp-controller="Home" asp-action="JoinServer">
+        @*Join a New Server*@<i class='bx bx-plus-circle'></i>
+    </button>
+    <button type="submit" class="btnCreateServer" value="newserverInput" asp-controller="Home" asp-action="CreateNewServer">
+        <i class='bx bx-message-square-add'></i>
+    </button>
+</form>
 <div class="serverdiv" id="serverdiv">
-    
+
 </div>
- <div id="channelDiv" class="channelDiv"></div>
-       
-    <div class="ChatDiv" id="ChatDiv">
-    </div>
+<div id="channelDiv" class="channelDiv"></div>
+
+<div class="ChatDiv" id="ChatDiv">
+</div>
 <form method="post">
-    <input style="border:thick solid black" value="" name="messageInput" type="text" class="msginput" id="msgInput" />
+    <input style="border:thick solid black" value="" name="messageInput" type="text" class="msginput" id="msgInput"/>
     @* <button type="submit" class="btnSend" value="messageInput" $1$asp-controller="Home" asp-action="SendMessage"#1#><i class='bx bxs-send'></i></button> *@
 </form>
 
 <div id="profilePopup">
+    
+    <div id="popupUserInformation">
         <h1 id="popupUsername"></h1>
-  <p id="popupStatus"></p>
-  <div id="popupUserInformation">
-      <p><strong>Account Created:</strong> <span id="popupAccountCreationDate"></span></p>
-            <p id="statusMessage"></p>
-      <button id="closePopup">Close</button>
-      <button id="sendFriendRequestButton">Send Friend Request</button>
-  </div>
-  @* <div id="popupServersContainer"> *@
-  @*   <h2>Servers</h2> *@
-  @*   <ul id="popupServersList"></ul> *@
-  @* </div> *@
+        <p>
+            <strong>Account Created:</strong> <span id="popupAccountCreationDate"></span>
+        </p>
+        <p id="statusMessage"></p>
+        <p>
+            <strong>Email:</strong><span id="userEmail"></span>
+        </p>
+        <button id="closePopup">Close</button>
+        <button id="sendFriendRequestButton">Send Friend Request</button>
+    </div>
+    <div id="popupServersContainer">
+        <h2>Servers</h2>
+        <ul id="popupServersList"></ul>
+    </div>
+</div>
+@* user edit profile *@
+<div id="editprofilePopup">
+    
+    <div id="editpopupUserInformation">
+        <h1 id="editpopupUsername"></h1>
+        <p>
+            <strong>Account Created:</strong> <span id="editpopupAccountCreationDate"></span>
+        </p>
+        <p id="editstatusMessage"></p>
+        <p>
+            <strong>Email:</strong><span id="edituserEmail"></span>
+        </p>
+        <button id="editclosePopup">Close</button>
+        <button id="editsendFriendRequestButton">Send Friend Request</button>
+    </div>
+    <div id="editpopupServersContainer">
+      <h2>Servers</h2>
+      <ul id="editpopupServersList"></ul>
+    </div>
 </div>
 </body>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -263,6 +321,7 @@ overflow: auto;
 
                     button.addEventListener('click', function () {
                         $('#channelDiv').empty();
+                        
                         console.log(serverButton);
                         var formData = new FormData();
                         formData.append('serverButton', serverButton);
@@ -521,7 +580,7 @@ overflow: auto;
         var popupDiscordTag = document.getElementById('popupDiscordTag');
         //var popupUserID = document.getElementById('popupUserID');
         var popupAccountCreationDate = document.getElementById('popupAccountCreationDate');
-        //var popupServersList = document.getElementById('popupServersList');
+        var popupServersList = document.getElementById('popupServersList');
         var closePopupButton = document.getElementById('closePopup');
         var popupStatusMessage = document.getElementById('statusMessage');
 
@@ -564,6 +623,8 @@ overflow: auto;
                     popupUsername.textContent = responseData.username+"#"+responseData.userId;
                     popupAccountCreationDate.textContent=responseData.creationDate;
                     popupStatusMessage.textContent=responseData.statusMessage;
+                    popupServersList.hidden=true;
+                    
                     //console.clear();
                } 
                else 
@@ -601,5 +662,75 @@ overflow: auto;
            };
            xhr.send(formData);
     });
+   document.addEventListener('contextmenu',function (event)
+       {
+           event.preventDefault();
+           var targetElement=event.target;
+           //var profileButton = document.getElementById('profileButton');
+           var profilePopup = document.getElementById('editprofilePopup');
+           //var popupAvatar = document.getElementById('popupAvatar');
+           var popupUsername = document.getElementById('editpopupUsername');
+           //var popupStatus = document.getElementById('popupStatus');
+           var popupDiscordTag = document.getElementById('editpopupDiscordTag');
+           //var popupUserID = document.getElementById('popupUserID');
+           var popupAccountCreationDate = document.getElementById('editpopupAccountCreationDate');
+           var popupServersList = document.getElementById('editpopupServersList');
+           var closePopupButton = document.getElementById('editclosePopup');
+           var popupStatusMessage = document.getElementById('editstatusMessage');
+           var popupEmail=document.getElementById('edituserEmail');
+           if (targetElement.classList.contains('userNotif'))
+           {
+               event.preventDefault();
+               var table=document.createElement('table');
+                table.classList.add('popupTable'); 
+                table.style.position = 'absolute';
+                table.style.top = event.clientY + 'px';
+                table.style.left = event.clientX + 'px';
+                var row = document.createElement('tr');
+                var cell = document.createElement('button');
+                cell.textContent = 'Edit Profile';
+                row.appendChild(cell);
+                table.appendChild(row);
+                document.body.appendChild(table);
+                table.addEventListener('mouseleave',function (){
+                    document.body.removeChild(table);
+                });
+                closePopupButton.addEventListener('click', function() {
+                  profilePopup.style.display = 'none';
+                });
+           }
+           cell.addEventListener('click',function (event)
+           {
+              event.preventDefault();
+              
+              var userDetails=targetElement.textContent;
+              var formData = new FormData();
+              formData.append('userDetails', userDetails);
+              var xhr = new XMLHttpRequest();
+              xhr.open('POST', '/Home/ProfileDetailsRequest', true);
+              xhr.onload = function () {
+                  if (xhr.status === 200) {
+                      // Request was successful
+                      
+                      var responseData=JSON.parse(xhr.responseText);
+                      console.log(responseData);
+                      profilePopup.style.display='flex';
+                       popupUsername.textContent = responseData.username + "#" + responseData.userId;
+                       popupAccountCreationDate.textContent = responseData.creationDate;
+                       popupStatusMessage.textContent = responseData.statusMessage;
+                       popupServersList.textContent = responseData.server;
+                       popupEmail.textContent=responseData.eMail;
+                  } 
+                  else 
+                  {
+                      console.error(xhr.statusText);
+                  }
+              };
+              xhr.onerror = function () {
+                  console.error('Error occurred while sending the request.');
+              };
+              xhr.send(formData);
+           });
+       });
     getDataAndCreateButtons();
 </script>

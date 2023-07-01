@@ -113,7 +113,7 @@ namespace MVC.Domain.Models
                     .IsUnicode(false)
                     .IsFixedLength();
                 entity.Property(e => e.Friends)
-                    .HasMaxLength(25)
+                    .HasMaxLength(500)
                     .IsUnicode(false)
                     .IsFixedLength();
 
