@@ -8,7 +8,7 @@
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 <div class="userPanel">
-<p class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username#@AppMain.User.UserId</p>
+        <p id="userNotif" class="userNotif">@MVC.Domain.SupClass.AppMain.User.Username.Trim()#@AppMain.User.UserId</p>
 </div>
 <style>
 .userPanel {
@@ -120,17 +120,14 @@
 </header>
 
 <form method="post">
-    <p class="receiverTitleName">@AppMain.DirectMessages.ReceiverName</p>
+        <p id="receiverTitleName" class="receiverTitleName">@AppMain.DirectMessages.ReceiverName.Trim()</p>
 
     <div class="ChatPanel" id="ChatPanel">
     </div>
 </form>
 <form method="post">
-    @* <input style="border:thick solid black" name="messageInput" type="text" value="messageInput" id="msgInput" class="msginput" maxlength="250" /> *@
     <input style="border:thick solid black" value="" name="messageInput" type="text" class="msginput" id="msgInput"/>
     <button type="submit" class="btnSend"><i class='bx bxs-send'></i></button>
-    @* asp-controller="Home" asp-action="SendDirectMessage" *@
-        
 </form>
 <div class="newServerPanel" id="newServerPanel">
 </div>
@@ -139,10 +136,16 @@
 <script>
 function retrieveJsonList()
 {
+        var currentUser = document.getElementById('userNotif').textContent;
+        var receiverName = document.getElementById('receiverTitleName').textContent;
     $.ajax({
      url: '@Url.Action("ReloadFriendChatPanel", "Home")',
-     type:'GET',
+     type:'POST',
      dataType:'json',
+     data: {
+                currentUser: currentUser,
+                receiverName: receiverName
+     },
      success: function (data)
      {
          $('#ChatPanel').empty();

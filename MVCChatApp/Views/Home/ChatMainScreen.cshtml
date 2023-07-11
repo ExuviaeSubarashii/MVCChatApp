@@ -6,33 +6,6 @@
         background-color: #36393F;
         max-width: 100%;
     }
-    /* width */
-    /*::-webkit-scrollbar {*/
-    /*    width: 20px;*/
-    /*}*/
-    
-    /*!* Track *!*/
-    /*::-webkit-scrollbar-track {*/
-    /*    box-shadow: inset 0 0 5px grey;*/
-    /*    border-radius: 10px;*/
-    /*}*/
-    
-    /*!* Handle *!*/
-    /*::-webkit-scrollbar-thumb {*/
-    /*    background: red;*/
-    /*    border-radius: 10px;*/
-    /*}*/
-
-    /*.serverdiv {*/
-    /*    display: block;*/
-    /*    width: 80px;*/
-    /*    margin: 0;*/
-    /*    position: fixed;*/
-    /*    left: 0;*/
-    /*    border-radius: 12px;*/
-    /*    max-width: 100%;*/
-    /*    text-align: center;*/
-    /*}*/
 .serverdiv {
   display: block;
           width: 80px;
@@ -305,116 +278,100 @@ overflow: auto;
 </body>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    function getDataAndCreateButtons() {
-        fetch('/Home/GetAllServers')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('serverdiv');
+<script type="text/javascript">
+    var serverName;
+    var channelName;
+    async function getDataAndCreateButtons() {
+        try {
+            const response = await fetch('/Home/GetAllServers');
+            const data = await response.json();
+            const container = document.getElementById('serverdiv');
 
-                data.forEach(serverButton => {
-                    const button = document.createElement('button');
+            for (const serverButton of data) {
+                const button = document.createElement('button');
+                button.classList.add('serverbutton');
+                button.textContent = serverButton;
+                container.appendChild(button);
 
-                    button.classList.add('serverbutton');
-                    button.textContent = serverButton;
-                    container.appendChild(button);
+                button.addEventListener('click', async function () {
+                    $('#channelDiv').empty();
+                    console.log(serverButton);
+                    serverName = serverButton;
+                    const formData = new FormData();
+                    formData.append('serverButton', serverButton);
 
-                    button.addEventListener('click', function () {
-                        $('#channelDiv').empty();
-                        
-                        console.log(serverButton);
-                        var formData = new FormData();
-                        formData.append('serverButton', serverButton);
-
-                        fetch('/Home/GetAllChannelsByJs', {
+                    try {
+                        const response = await fetch('/Home/GetAllChannelsByJs', {
                             method: 'POST',
                             body: formData
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const channelContainer = document.getElementById('channelDiv');
-                                
-                                data.forEach(channelButton => {
-                                    const channelcreatedButton = document.createElement('button');
-                                    channelcreatedButton.classList.add('channelcreatedButton');
-                                    channelcreatedButton.textContent = channelButton;
-                                    channelContainer.appendChild(channelcreatedButton);
+                        });
+                        const data = await response.json();
+                        const channelContainer = document.getElementById('channelDiv');
 
-                                    channelcreatedButton.addEventListener('click', function () {
-                                        var channelFormData = new FormData();
-                                        channelFormData.append('serverButton', serverButton);
-                                        channelFormData.append('channelButton', channelButton);
+                        for (const channelButton of data) {
+                            const channelcreatedButton = document.createElement('button');
+                            channelcreatedButton.classList.add('channelcreatedButton');
+                            channelcreatedButton.textContent = channelButton;
+                            channelContainer.appendChild(channelcreatedButton);
 
-                                        fetch('/Home/ReturnChatScreen', {
-                                            method: 'POST',
-                                            body: channelFormData
-                                        })
-                                            .then(response => {
-                                                if (response.ok) {
-                                                    console.log('Successful');
-                                                    retrieveJsonList();
-                                                } else {
-                                                    console.error('Request failed:', response.statusText);
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.error('Error:', error);
-                                            });
+                            channelcreatedButton.addEventListener('click', async function () {
+                                const channelFormData = new FormData();
+                                channelFormData.append('serverButton', serverButton);
+                                channelFormData.append('channelButton', channelButton);
+                                channelName = channelButton;
+                                try {
+                                    const response = await fetch('/Home/ReturnChatScreen', {
+                                        method: 'POST',
+                                        body: channelFormData
                                     });
-                                });
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
+
+                                    if (response.ok) {
+                                        console.log('Successful');
+                                        retrieveJsonList();
+                                    } else {
+                                        console.error('Request failed:', response.statusText);
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                }
                             });
-                    });
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     }
 
     function retrieveJsonList() {
+
         $.ajax({
             url: '@Url.Action("ReloadChatScreen", "Home")',
-            type: 'GET',
+            type: 'POST',
             dataType: 'json',
+            data: {
+                serverName: serverName,
+                channelName: channelName
+            },
             success: function (data) {
                 $('#ChatDiv').empty();
 
                 data.forEach(function (item) {
-                    var idPara = document.createElement("h6");
-                    idPara.classList.add('idBox');
-                    var serverPara = document.createElement("h6");
-                    serverPara.classList.add('serverBox');
+                    var idPara = $('<h6>').addClass('idBox').text(item.id);
+                    var serverPara = $('<h6>').addClass('serverBox').text(item.server);
+                    var channelPara = $('<p>').addClass('channelBox').text(item.channel);
+                    var timePara = $('<p>').addClass('timeBox').text(item.senderTime);
+                    var senderPara = $('<p>').addClass('senderBox').text(item.senderName);
+                    var messagePara = $('<p>').addClass('messageBox').text(item.message1);
 
-                    var channelPara = document.createElement("p");
-                    channelPara.classList.add('channelBox')
-
-                    var timePara = document.createElement("p");
-                    timePara.classList.add('timeBox')
-
-                    var senderPara = document.createElement("p");
-                    senderPara.classList.add('senderBox');
-
-                    var messagePara = document.createElement("p");
-                    messagePara.classList.add('messageBox');
-                    
-                    serverPara.textContent = item.server;
-                    channelPara.textContent = item.channel;
-                    timePara.textContent = item.senderTime;
-                    senderPara.textContent = item.senderName;
-                    messagePara.textContent = item.message1;
-                    idPara.textContent = item.id;
-                    $('#ChatDiv').append(messagePara);
-                    $('#ChatDiv').append(senderPara);
-                    $('#ChatDiv').append(idPara);
-                    $('#ChatDiv').append(timePara);
-                    idPara.style.color = "#777dda";
-                    timePara.style.color = "gray";
-                    messagePara.style.color = "white";
-                    senderPara.style.color = "#D3D3D3";
-                    //try to design them maybe?
+                    $('#ChatDiv').append(messagePara, senderPara, idPara, timePara);
+                    idPara.css('color', '#777dda');
+                    timePara.css('color', 'gray');
+                    messagePara.css('color', 'white');
+                    senderPara.css('color', '#D3D3D3');
                 });
             },
             error: function (xhr, status, error) {
@@ -422,6 +379,7 @@ overflow: auto;
             }
         });
     }
+
     $(document).ready(function () 
     {    
         retrieveJsonList();
@@ -432,9 +390,11 @@ overflow: auto;
             event.preventDefault(); // Prevent the default form submission
 
             var messageInput = document.getElementById('msgInput').value;
+            var userFullName = document.getElementById('userNotif').textContent;
             if (messageInput !== '' || messageInput != null || messageInput !== "") {
                 var formData = new FormData();
                 formData.append('messageInput', messageInput);
+                formData.append('userFullName', userFullName);
 
                 var xhr = new XMLHttpRequest();
 
@@ -662,22 +622,23 @@ overflow: auto;
            };
            xhr.send(formData);
     });
+    //var profileButton = document.getElementById('profileButton');
+    var profilePopup = document.getElementById('editprofilePopup');
+    //var popupAvatar = document.getElementById('popupAvatar');
+    var popupUsername = document.getElementById('editpopupUsername');
+    //var popupStatus = document.getElementById('popupStatus');
+    var popupDiscordTag = document.getElementById('editpopupDiscordTag');
+    //var popupUserID = document.getElementById('popupUserID');
+    var popupAccountCreationDate = document.getElementById('editpopupAccountCreationDate');
+    var popupServersList = document.getElementById('editpopupServersList');
+    var editclosePopupButton = document.getElementById('editclosePopup');
+    var popupStatusMessage = document.getElementById('editstatusMessage');
+    var popupEmail = document.getElementById('edituserEmail');
+    var newStatusInput=document.getElementsByClassName('newStatusInput');
    document.addEventListener('contextmenu',function (event)
        {
            event.preventDefault();
            var targetElement=event.target;
-           //var profileButton = document.getElementById('profileButton');
-           var profilePopup = document.getElementById('editprofilePopup');
-           //var popupAvatar = document.getElementById('popupAvatar');
-           var popupUsername = document.getElementById('editpopupUsername');
-           //var popupStatus = document.getElementById('popupStatus');
-           var popupDiscordTag = document.getElementById('editpopupDiscordTag');
-           //var popupUserID = document.getElementById('popupUserID');
-           var popupAccountCreationDate = document.getElementById('editpopupAccountCreationDate');
-           var popupServersList = document.getElementById('editpopupServersList');
-           var closePopupButton = document.getElementById('editclosePopup');
-           var popupStatusMessage = document.getElementById('editstatusMessage');
-           var popupEmail=document.getElementById('edituserEmail');
            if (targetElement.classList.contains('userNotif'))
            {
                event.preventDefault();
@@ -695,8 +656,9 @@ overflow: auto;
                 table.addEventListener('mouseleave',function (){
                     document.body.removeChild(table);
                 });
-                closePopupButton.addEventListener('click', function() {
+                editclosePopupButton.addEventListener('click', function() {
                   profilePopup.style.display = 'none';
+                  newStatusInput.textContent = "";
                 });
            }
            cell.addEventListener('click',function (event)
@@ -708,13 +670,13 @@ overflow: auto;
               formData.append('userDetails', userDetails);
               var xhr = new XMLHttpRequest();
               xhr.open('POST', '/Home/ProfileDetailsRequest', true);
-              xhr.onload = function () {
-                  if (xhr.status === 200) {
-                      // Request was successful
-                      
-                      var responseData=JSON.parse(xhr.responseText);
-                      console.log(responseData);
-                      profilePopup.style.display='flex';
+              xhr.onload = function () 
+              {
+                  if (xhr.status === 200) 
+                  {    
+                       var responseData=JSON.parse(xhr.responseText);
+                       console.log(responseData);
+                       profilePopup.style.display='flex';
                        popupUsername.textContent = responseData.username + "#" + responseData.userId;
                        popupAccountCreationDate.textContent = responseData.creationDate;
                        popupStatusMessage.textContent = responseData.statusMessage;
@@ -726,11 +688,69 @@ overflow: auto;
                       console.error(xhr.statusText);
                   }
               };
-              xhr.onerror = function () {
+              xhr.onerror = function () 
+              {
                   console.error('Error occurred while sending the request.');
               };
               xhr.send(formData);
            });
        });
+   popupStatusMessage.addEventListener('contextmenu',function (event)
+   {
+      event.preventDefault();
+      const newStatusMessageInput=document.createElement('input');
+      const newStatusMessageSaveButton=document.createElement('button');
+
+      newStatusMessageInput.classList.add('newStatusInput');
+      newStatusMessageSaveButton.classList.add('newStatusMessageSaveButton');
+      
+      newStatusMessageSaveButton.textContent="Save Changes";
+      
+      
+      
+      profilePopup.appendChild(newStatusMessageInput);
+      profilePopup.appendChild(newStatusMessageSaveButton);
+      var popupUsername = document.getElementById('editpopupUsername');
+
+      newStatusMessageSaveButton.addEventListener('click',function (event)
+      {
+          event.preventDefault();
+          var newStatusMessage=newStatusMessageInput.value;
+          var userDetails=popupUsername.textContent;
+          
+          
+          var formData = new FormData();
+          formData.append('newStatusMessage', newStatusMessage);
+          formData.append('userDetails', userDetails);
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', '/Home/ChangeStatusMessage', true);
+          xhr.onload = function () 
+          {
+              if (xhr.status === 200) 
+              {    
+                   console.log(xhr.responseText);
+                   newStatusMessageInput.value="";
+              } 
+              else 
+              {
+                  console.error(xhr.statusText);
+              }
+          };
+          xhr.onerror = function () 
+          {
+              console.error('Error occurred while sending the request. StatusMessage or userDetails is Null');
+          };
+          xhr.send(formData);
+      });
+   });
+
+popupUsername.addEventListener('contextmenu', function(event) {
+  const newInputTest = document.createElement('input');
+  newInputTest.type = 'text';
+
+  newInputTest.value = popupUsername.textContent;
+  const oldInput = document.getElementById('editpopupUsername');
+  oldInput.parentNode.replaceChild(newInputTest, oldInput);
+});
     getDataAndCreateButtons();
 </script>

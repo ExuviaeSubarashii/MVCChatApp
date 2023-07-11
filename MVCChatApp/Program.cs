@@ -12,8 +12,17 @@ namespace MVCChatApp
             builder.Services.AddScoped<ChatContext>();
             builder.Services.AddControllersWithViews();
             builder.Services.AddSignalR();
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
             var app = builder.Build();
-
+            app.UseCors();
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

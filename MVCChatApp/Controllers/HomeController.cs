@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using MVC.Domain.Models;
 using MVC.Domain.SupClass;
 using MVC.Service.Extension;
@@ -11,6 +12,7 @@ namespace MVCChatApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ChatContext _CP;
 
+        
         public HomeController(ILogger<HomeController> logger, ChatContext CP)
         {
             _logger = logger;
@@ -72,7 +74,7 @@ namespace MVCChatApp.Controllers
                 CreationDate = DateTime.Now,
                 StatusMessage = ""
             };
-            if (query == true)
+            if (query)
             {
                 return View("RegisterPage");
             }
@@ -95,7 +97,8 @@ namespace MVCChatApp.Controllers
         public ActionResult GetAllChannels(string serverButton)
         {
             var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
-            AppMain.User.Server = serverButton.Trim();
+            //AppMain.User.Server = serverButton.Trim();
+           
             return View("ChooseChannel", query);
         }
 
@@ -104,6 +107,7 @@ namespace MVCChatApp.Controllers
         {
             var query = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).ToList();
             AppMain.User.Server = serverButton.Trim();
+            
             //return View("ChooseChannel",query);
             var query2 = _CP.Servers.Where(x => x.ServerName.Trim() == serverButton.Trim()).FirstOrDefault();
             string[] channelNames = null;
@@ -127,31 +131,39 @@ namespace MVCChatApp.Controllers
             return View("ChatMainScreen");
         }
 
-        [HttpGet]
-        public async Task<ActionResult> ReloadChatScreen()
+        [HttpPost]
+        public async Task<ActionResult> ReloadChatScreen(string serverName, string channelName)
         {
-            if (string.IsNullOrEmpty(AppMain.User.Server)==false && string.IsNullOrEmpty(AppMain.Servers.Channels)==false)
+            //if (string.IsNullOrEmpty(AppMain.User.Server)==false && string.IsNullOrEmpty(AppMain.Servers.Channels)==false)
+            if (string.IsNullOrEmpty(AppMain.User.Server) == false)
             {
+                //var query = _CP.Messages
+                //    .Where(x => x.Server == AppMain.User.Server.Trim() &&
+                //                x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null")
+                //    .OrderByDescending(x => x.Id).ToList();
                 var query = _CP.Messages
-                    .Where(x => x.Server == AppMain.User.Server.Trim() &&
-                                x.Channel == AppMain.Servers.Channels.Trim() && x.ImageDir != "Null")
+                    .Where(x => x.Server == serverName.Trim() &&
+                                x.Channel == channelName.Trim() && x.ImageDir != "Null")
                     .OrderByDescending(x => x.Id).ToList();
                 return Json(query);
             }
-
             return Ok();
         }
 
         [HttpPost]
-        public async Task<ActionResult> SendMessage(string messageInput)
+        public async Task<ActionResult> SendMessage(string messageInput, string userFullName)
         {
+            var userDetails = userFullName.Split("#");
+            var userName = userDetails[0];
+            var userId = userDetails[1];
+
             var query = _CP.Messages
                 .Where(x => x.Server == AppMain.User.Server.Trim() && x.Channel == AppMain.Servers.Channels.Trim() &&
                             x.ImageDir != "Null").OrderByDescending(x => x.Id).ToList();
             Message newmsg = new Message()
             {
                 Message1 = messageInput,
-                SenderName = AppMain.User.Username.Trim() + "#" + AppMain.User.UserId.Trim(),
+                SenderName = userName.Trim() + "#" + userId.Trim(),
                 SenderTime = DateTime.UtcNow,
                 Server = AppMain.User.Server,
                 Channel = AppMain.Servers.Channels,
@@ -534,7 +546,7 @@ namespace MVCChatApp.Controllers
         [HttpPost]
         public async Task<ActionResult> SendDirectMessage(string messageInput)
         {
-            string currentUser = AppMain.User.Username.Trim()+"#"+AppMain.User.UserId.Trim();
+            string currentUser = AppMain.User.Username.Trim() + "#" + AppMain.User.UserId.Trim();
             string receiverName = AppMain.DirectMessages.ReceiverName.Trim();
 
             var directMessagesBeforeSending = GetDirectMessages(currentUser, receiverName);
@@ -570,17 +582,26 @@ namespace MVCChatApp.Controllers
                 .ToList();
         }
 
-        [HttpGet]
-        public async Task<ActionResult> ReloadFriendChatPanel()
+        [HttpPost]
+        public async Task<ActionResult> ReloadFriendChatPanel(string currentUser,string receiverName)
         {
-            string currentUser = AppMain.User.Username.Trim()+"#"+AppMain.User.UserId.Trim();
-            string receiverUser = AppMain.DirectMessages.ReceiverName;
-            var directMessagesForChat = _CP.DirectMessages
-                .Where(x => (x.SenderName == currentUser && x.ReceiverName == AppMain.DirectMessages.ReceiverName) ||
-                            (x.ReceiverName == currentUser && x.SenderName == AppMain.DirectMessages.ReceiverName))
+            //string currentUser = AppMain.User.Username.Trim() + "#" + AppMain.User.UserId.Trim();
+            //string receiverUser = AppMain.DirectMessages.ReceiverName;
+            //var directMessagesForChat = _CP.DirectMessages
+            //    .Where(x => (x.SenderName == currentUser && x.ReceiverName == AppMain.DirectMessages.ReceiverName) ||
+            //                (x.ReceiverName == currentUser && x.SenderName == AppMain.DirectMessages.ReceiverName))
+            //    .OrderByDescending(x => x.Id)
+            //    .ToList(); 
+            //var directMessagesForChat = _CP.DirectMessages
+            //    .Where(x => (x.SenderName == currentUser && x.ReceiverName == receiverName) ||
+            //                (x.ReceiverName == currentUser && x.SenderName == receiverName))
+            //    .OrderByDescending(x => x.Id)
+            //    .ToList();
+            return Json(_CP.DirectMessages
+                .Where(x => (x.SenderName == currentUser && x.ReceiverName == receiverName) ||
+                            (x.ReceiverName == currentUser && x.SenderName == receiverName))
                 .OrderByDescending(x => x.Id)
-                .ToList();
-            return Json(directMessagesForChat);
+                .ToList());
         }
 
         [HttpPost]
@@ -739,6 +760,7 @@ namespace MVCChatApp.Controllers
         }
 
         [HttpPost]
+        [Route("ProfileDetailsRequest")]
         public async Task<ActionResult> ProfileDetailsRequest(string userDetails)
         {
             var userInfoArray = userDetails.Split("#");
@@ -746,13 +768,27 @@ namespace MVCChatApp.Controllers
             var userId = userInfoArray[1];
             var userProfile = _CP.Users.Where(x => x.Username == userName.Trim() && x.UserId == userId.Trim())
                 .FirstOrDefault();
-
             return Json(userProfile);
         }
-        //[HttpPost]
-        //public async Task<ActionResult> ChangeStatusMessage(string newStatusMessage,string userDetails)
-        //{ 
+        [HttpPost]
+        public async Task<ActionResult> ChangeStatusMessage(string newStatusMessage, string userDetails)
+        {
+            if (!string.IsNullOrEmpty(newStatusMessage) && !string.IsNullOrEmpty(userDetails))
+            {
+                var userInfoArray = userDetails.Split("#");
+                var userName = userInfoArray[0];
+                var userId = userInfoArray[1];
+                var userProfile = _CP.Users.Where(x => x.Username == userName.Trim() && x.UserId == userId.Trim())
+                    .FirstOrDefault();
+                userProfile.StatusMessage = newStatusMessage.Trim();
+                _CP.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
 
-        //}
+        }
     }
 }
