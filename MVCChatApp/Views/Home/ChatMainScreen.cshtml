@@ -1,4 +1,5 @@
 ﻿@using MVC.Domain.SupClass
+<script defer src="app.js"></script>
 <style>
 
     body {
@@ -383,7 +384,7 @@ overflow: auto;
     $(document).ready(function () 
     {    
         retrieveJsonList();
-        setInterval(retrieveJsonList, 1000);
+        //setInterval(retrieveJsonList, 1000);
     });
     document.getElementById('msgInput').addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {

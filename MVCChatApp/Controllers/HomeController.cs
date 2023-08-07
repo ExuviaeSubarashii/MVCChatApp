@@ -135,7 +135,7 @@ namespace MVCChatApp.Controllers
         public async Task<ActionResult> ReloadChatScreen(string serverName, string channelName)
         {
             //if (string.IsNullOrEmpty(AppMain.User.Server)==false && string.IsNullOrEmpty(AppMain.Servers.Channels)==false)
-            if (string.IsNullOrEmpty(AppMain.User.Server) == false)
+            if (string.IsNullOrEmpty(serverName) == false)
             {
                 //var query = _CP.Messages
                 //    .Where(x => x.Server == AppMain.User.Server.Trim() &&
